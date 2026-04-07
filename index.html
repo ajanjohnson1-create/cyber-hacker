@@ -125,7 +125,7 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 .choice .req{font-size:7px;color:var(--amber);margin-left:5px;}
 
 /* type row */
-#type-row{display:flex;align-items:center;padding:0.5rem 1.25rem 0.55rem;}
+#type-row{display:flex;align-items:center;padding:0.5rem 1.25rem 0.55rem;position:relative;cursor:text;}
 #pfx{font-size:12px;color:var(--g2);white-space:nowrap;padding-right:7px;flex-shrink:0;}
 #tdisp{flex:1;font-size:13px;min-height:18px;}
 #tdisp .cc{color:var(--green);}
@@ -133,7 +133,7 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 #tdisp .cp{color:var(--text3);}
 #tdisp .cur{display:inline-block;width:7px;height:13px;background:var(--green);vertical-align:middle;animation:cur 0.8s step-end infinite;box-shadow:0 0 5px var(--green);}
 @keyframes cur{0%,100%{opacity:1;}50%{opacity:0;}}
-#real-input{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none;}
+#real-input{position:absolute;opacity:0;width:100%;height:100%;top:0;left:0;background:transparent;border:none;outline:none;color:transparent;caret-color:transparent;font-size:13px;}
 
 #hint-bar{display:flex;align-items:center;padding:2px 1.25rem 0.5rem;border-top:1px solid var(--b1);}
 #hint-txt{font-size:8.5px;color:var(--text3);letter-spacing:0.12em;flex:1;}
@@ -418,7 +418,30 @@ setInterval(()=>{
 
 // ── TYPING ──
 const ri=document.getElementById('real-input');
+
+// Focus real-input on any click or keydown anywhere in the game
 document.addEventListener('click',()=>{if(!G.mg.active)ri.focus();});
+document.addEventListener('keydown',(e)=>{
+  if(G.mg.active)return;
+  if(document.getElementById('s-game').classList.contains('hide'))return;
+  // Don't steal from visible inputs
+  if(document.activeElement===document.getElementById('mg-input'))return;
+  // Redirect all printable keypresses to the hidden input
+  if(e.key.length===1&&!e.ctrlKey&&!e.metaKey&&!e.altKey){
+    ri.focus();
+    // Manually append the character since focus alone won't capture it
+    const cur=ri.value;
+    ri.value=cur+e.key;
+    e.preventDefault();
+    // Trigger input handler manually
+    ri.dispatchEvent(new Event('input'));
+  } else if(e.key==='Backspace'){
+    ri.focus();
+    ri.value=ri.value.slice(0,-1);
+    e.preventDefault();
+    ri.dispatchEvent(new Event('input'));
+  }
+});
 ri.addEventListener('input',handleType);
 
 function setKW(kw,hint){
@@ -709,10 +732,14 @@ function sceneEnd(){
 // ── INIT ──
 function initGame(){
   showScreen('s-game');
-  renderNodes();ri.focus();
+  renderNodes();
   sceneIntro();
   log('System initialized','log-ok');
   log('Target: NovaCorp BLACKVAULT','log-m');
+  ri.focus();
+  setTimeout(()=>ri.focus(),200);
+  setTimeout(()=>ri.focus(),600);
+  setTimeout(()=>ri.focus(),1500);
 }
 
 function showScreen(id){
